@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -40,6 +42,40 @@ public class Controller_Twitter {
             tweetList.add(tweet);
             return ResponseEntity.ok("Tweet successfully received: " + tweet.getTweetInformation());
         }
+    }
+
+    @PostMapping("/manage-tweet")
+    public ResponseEntity<HashMap<String, String>> manageTweet(@RequestBody Map<String, String> userInput){
+        HashMap<String, String> spellingControl = new HashMap<>();
+        String userTweet = userInput.get("Tweet");
+        String specified_language = userInput.get("Language");
+
+        boolean empty_tweet = checkIfEmpty(userTweet);
+        boolean no_language_specified = checkIfEmpty(specified_language);
+
+        if(empty_tweet || no_language_specified){
+            spellingControl.put("Invalid", "The tweet is either empty or no language has been specified");
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
+
+        //En mock metod (ska ersättas med LIBRIS API senare)
+        String tweet_improvement = suggestedGrammar(userTweet, specified_language);
+
+        spellingControl.put("User original tweet", userTweet);
+        spellingControl.put("Suggested grammar", tweet_improvement);
+        return ResponseEntity.ok(spellingControl);
+    }
+
+    public boolean checkIfEmpty(String input){
+        if(input == null || input.isEmpty()){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String suggestedGrammar(String tweet, String language){
+        return "Förbättrad tweet med språket (" + language + "): " + tweet.replace("Twitetr", "Twitter");
     }
 
 }
