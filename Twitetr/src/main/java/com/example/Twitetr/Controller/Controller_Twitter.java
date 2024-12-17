@@ -40,6 +40,17 @@ public class Controller_Twitter {
         return tweet.matches(".*" + invalidCharsRegex + ".*");
     }
 
+    @GetMapping("/test-manage-tweet")
+    public ResponseEntity<HashMap<String, Object>> testManageTweet() {
+        // Skapa mock-input
+        Map<String, String> testInput = new HashMap<>();
+        testInput.put("tweet", "Detta är ett test");
+        testInput.put("language", "svenska");
+
+        // Anropa den riktiga manageTweet-metoden
+        return manageTweet(testInput);
+    }
+
     @PostMapping("/post-tweet")
     public ResponseEntity<String> postTweet(@RequestBody Map<String, String> userInput){
         String tweet = userInput.get("tweet");
@@ -98,8 +109,8 @@ public class Controller_Twitter {
     @PostMapping("/manage-tweet")
     public ResponseEntity<HashMap<String, Object>> manageTweet(@RequestBody Map<String, String> userInput) {
         HashMap<String, Object> spellingControl = new HashMap<>();
-        String userTweet = userInput.get("Tweet");
-        String specified_language = userInput.get("Language");
+        String userTweet = userInput.get("tweet");
+        String specified_language = userInput.get("language");
 
         boolean empty_tweet = checkIfEmpty(userTweet);
         boolean no_language_specified = checkIfEmpty(specified_language);
