@@ -3,6 +3,7 @@ package com.example.Twitetr.Controller;
 //URL FÖR ATT TESTA BACKEND: http://localhost:8080/api/tweets
 
 import com.example.Twitetr.Entity.Tweet;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +28,52 @@ public class Controller_Twitter {
     }
      */
 
+    // en metod för att veta vilka otillåtna tecken som finns.
+    public boolean containsInvalidCharacters(String tweet){
+        String invalidCharsRegex = "[\\x00-\\x1F<>\"'`;]";
+        return tweet.matches(".*" + invalidCharsRegex + ".*");
+    }
 
-   // ResponseEntity is a clas used to show HTTP requests, such as status code.
+    @PostMapping("/post-tweet")
+    public ResponseEntity<String> postTweet(@RequestBody Map<String, String> userInput){
+        String tweet = userInput.get("tweet");
+
+        if(checkIfEmpty(tweet)){
+            return ResponseEntity.badRequest().body("The tweet does not exist. Please Try again");
+        }
+
+        if(tweetAboveLimit(tweet)){
+            return ResponseEntity.badRequest().body("The tweet has more than 280 characters.");
+        }
+
+        if(containsInvalidCharacters(tweet)){
+            return ResponseEntity.badRequest().body("Error: Tweeten innehåller otillåtna tecken.");
+        }
+
+        boolean success = sendToTwitterAPI(tweet);
+
+        if(success){
+            return ResponseEntity.ok("The tweet has been sent.");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: Kunde inte publicera tweeten.");
+        }
+
+    }
+
+    //skickar tweet till twitters API
+    public boolean sendToTwitterAPI(String tweet){
+        try {
+            //mock - kod
+            System.out.println("Följande tweet skickas till twitters API: " + tweet);
+            return true;
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    // ResponseEntity is a clas used to show HTTP requests, such as status code.
     @PostMapping
     public ResponseEntity<String> addTweet(@RequestBody Tweet tweet) {
         if(tweet.getTweetInformation() == null){
@@ -58,6 +103,13 @@ public class Controller_Twitter {
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
+        //användning av containsInvalidCharacters metoden. Kontrollerar ifall det finns otillåtna tecken och skickar ett meddelande.
+        if (containsInvalidCharacters(userTweet)) {
+            spellingControl.put("Error", "Tweeten innehåller otillåtna tecken (t.ex. kontrolltecken, specialtecken som <, >, \", ';').");
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
+
+
         //En mock metod (ska ersättas med LIBRIS API senare)
         String tweet_improvement = suggestedGrammar(userTweet, specified_language);
 
@@ -74,6 +126,14 @@ public class Controller_Twitter {
         }
     }
 
+    public boolean tweetAboveLimit(String tweet){
+        if(tweet.length() > 280){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public String suggestedGrammar(String tweet, String language){
         Map<String, String> spellingCorrection = new HashMap<>();
         spellingCorrection.put("Twitetr", "Twitter");
@@ -81,18 +141,23 @@ public class Controller_Twitter {
         spellingCorrection.put("exampel", "exempel");
         spellingCorrection.put("staavning", "stavning");
 
+        if(tweetAboveLimit(tweet)){
+            return("error, överskridit antal tillåtna tecken!");
+        }
+
         String[] words = tweet.split(" ");
         StringBuilder correctedTweet = new StringBuilder();
 
-        for (String word: words) {
-            if (spellingCorrection.containsKey(word)) {
-                correctedTweet.append(spellingCorrection.get(word)).append(" ");
+        for (String word : words) {
+            String word_lowerCase = word.toLowerCase();
+            if (spellingCorrection.containsKey(word_lowerCase)) {
+                correctedTweet.append(spellingCorrection.get(word_lowerCase)).append(" ");
             } else {
                 correctedTweet.append(word).append(" ");
             }
         }
 
-        return "Förbättrad tweet med språket (" + language + "): " + tweet.replace("Twitetr", "Twitter");
+        return "Förbättrad tweet med språket (" + language + "): " + correctedTweet.toString().trim();
     }
 
     public static void main(String[] args) {
