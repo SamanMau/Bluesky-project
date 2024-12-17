@@ -27,6 +27,11 @@ public class Controller_Twitter {
     }
      */
 
+    // en metod för att veta vilka otillåtna tecken som finns.
+    public boolean containsInvalidCharacters(String tweet){
+        String invalidCharsRegex = "[\\x00-\\x1F<>\"'`;]";
+        return tweet.matches(".*" + invalidCharsRegex + ".*");
+    }
 
    // ResponseEntity is a clas used to show HTTP requests, such as status code.
     @PostMapping
@@ -58,6 +63,13 @@ public class Controller_Twitter {
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
+        //användning av containsInvalidCharacters metoden. Kontrollerar ifall det finns otillåtna tecken och skickar ett meddelande.
+        if (containsInvalidCharacters(userTweet)) {
+            spellingControl.put("Error", "Tweeten innehåller otillåtna tecken (t.ex. kontrolltecken, specialtecken som <, >, \", ';').");
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
+
+
         //En mock metod (ska ersättas med LIBRIS API senare)
         String tweet_improvement = suggestedGrammar(userTweet, specified_language);
 
@@ -81,6 +93,11 @@ public class Controller_Twitter {
         spellingCorrection.put("exampel", "exempel");
         spellingCorrection.put("staavning", "stavning");
 
+        //konrollerar ifall tweeten innehåller mer än 280 tecken.
+        if (tweet.length()> 280){
+            return("error, överskridit antal tillåtna tecken!");
+        }
+
         String[] words = tweet.split(" ");
         StringBuilder correctedTweet = new StringBuilder();
 
@@ -91,7 +108,6 @@ public class Controller_Twitter {
                 correctedTweet.append(word).append(" ");
             }
         }
-
         return "Förbättrad tweet med språket (" + language + "): " + tweet.replace("Twitetr", "Twitter");
     }
 
