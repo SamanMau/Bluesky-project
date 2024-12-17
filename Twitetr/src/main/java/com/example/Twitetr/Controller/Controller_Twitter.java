@@ -1,8 +1,11 @@
 package com.example.Twitetr.Controller;
 
 //URL FÖR ATT TESTA BACKEND: http://localhost:8080/api/tweets
+//http://localhost:8080/api/tweets
 
 import com.example.Twitetr.Entity.Tweet;
+import com.example.Twitetr.Service.LibrisService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,12 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/api/tweets")
 public class Controller_Twitter {
     private ArrayList<Tweet> tweetList = new ArrayList<>();
+    @Autowired
+    private LibrisService librisService;
 
     @GetMapping //Hämtar alla Tweets
     public String getAllTweets() { //testmetod.
@@ -90,31 +96,38 @@ public class Controller_Twitter {
     }
 
     @PostMapping("/manage-tweet")
-    public ResponseEntity<HashMap<String, String>> manageTweet(@RequestBody Map<String, String> userInput){
-        HashMap<String, String> spellingControl = new HashMap<>();
+    public ResponseEntity<HashMap<String, Object>> manageTweet(@RequestBody Map<String, String> userInput) {
+        HashMap<String, Object> spellingControl = new HashMap<>();
         String userTweet = userInput.get("Tweet");
         String specified_language = userInput.get("Language");
 
         boolean empty_tweet = checkIfEmpty(userTweet);
         boolean no_language_specified = checkIfEmpty(specified_language);
 
-        if(empty_tweet || no_language_specified){
+        if (empty_tweet || no_language_specified) {
             spellingControl.put("Invalid", "The tweet is either empty or no language has been specified");
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
         //användning av containsInvalidCharacters metoden. Kontrollerar ifall det finns otillåtna tecken och skickar ett meddelande.
         if (containsInvalidCharacters(userTweet)) {
+
             spellingControl.put("Error", "Tweeten innehåller otillåtna tecken (t.ex. kontrolltecken, specialtecken som <, >, \", ';').");
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
 
         //En mock metod (ska ersättas med LIBRIS API senare)
-        String tweet_improvement = suggestedGrammar(userTweet, specified_language);
+        HashMap<String, Object> librisResponse = librisService.checkSpelling(userTweet, specified_language);
 
+        if (librisResponse.containsKey("suggestions")) {
+            spellingControl.put("LIBRIS suggestions", librisResponse.get("suggestions").toString());
+        } else {
+            spellingControl.put("LIBRIS suggestions", "Inga förslag hittades.");
+
+
+        }
         spellingControl.put("User original tweet", userTweet);
-        spellingControl.put("Suggested grammar", tweet_improvement);
         return ResponseEntity.ok(spellingControl);
     }
 
