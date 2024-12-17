@@ -101,14 +101,16 @@ public class Controller_Twitter {
         String[] words = tweet.split(" ");
         StringBuilder correctedTweet = new StringBuilder();
 
-        for (String word: words) {
-            if (spellingCorrection.containsKey(word)) {
-                correctedTweet.append(spellingCorrection.get(word)).append(" ");
+        for (String word : words) {
+            String word_lowerCase = word.toLowerCase();
+            if (spellingCorrection.containsKey(word_lowerCase)) {
+                correctedTweet.append(spellingCorrection.get(word_lowerCase)).append(" ");
             } else {
                 correctedTweet.append(word).append(" ");
             }
         }
-        return "Förbättrad tweet med språket (" + language + "): " + tweet.replace("Twitetr", "Twitter");
+
+        return "Förbättrad tweet med språket (" + language + "): " + correctedTweet.toString().trim();
     }
 
     public static void main(String[] args) {
