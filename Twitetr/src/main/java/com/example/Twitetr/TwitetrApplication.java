@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class TwitetrApplication {
 
+	//Klassen kör servern.
 	public static void main(String[] args) {
 		SpringApplication.run(TwitetrApplication.class, args);
 	}
