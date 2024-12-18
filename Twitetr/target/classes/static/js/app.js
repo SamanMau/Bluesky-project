@@ -1,4 +1,3 @@
-// Initialize Quill Editor
 const quill = new Quill('#editor', {
     theme: 'snow',
     placeholder: 'Write your post here...',
@@ -30,7 +29,6 @@ quill.on('text-change', () => {
     previewContainer.classList.remove('hidden');
 });
 
-// Handle Form Submission
 submitButton.addEventListener('click', async (e) => {
     e.preventDefault(); // Förhindra sidladdning
 
@@ -44,7 +42,7 @@ submitButton.addEventListener('click', async (e) => {
 
     try {
         // Skicka tweet som JSON till backend
-        const response = await fetch('/api/tweet', {
+        const response = await fetch('api/tweets/test-manage-tweet', {
             method: 'POST', // POST-begäran för att skicka data
             headers: { 'Content-Type': 'application/json' }, // Skickar JSON-format
             body: JSON.stringify({ content: plainText }), // JSON-struktur för tweet
