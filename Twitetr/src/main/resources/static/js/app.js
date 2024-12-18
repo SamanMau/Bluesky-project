@@ -63,3 +63,41 @@ submitButton.addEventListener('click', async (e) => {
         alert('Something went wrong. Please try again!');
     }
 });
+
+// FÖR INTEGRATIONEN FÖR BACKEND
+submitButton.addEventListener('click', async (e) => {
+    e.preventDefault(); // Förhindra sidladdning
+
+    const plainText = quill.getText().trim();
+
+    // Kontrollera att texten är mellan 1 och 280 tecken
+    if (plainText.length === 0 || plainText.length > 280) {
+        alert('Tweet must be between 1 and 280 characters.');
+        return;
+    }
+
+    try {
+        // Skicka text till backend och hämta svar
+        const response = await fetch('/api/tweets/manage-tweet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tweet: plainText, language: 'svenska' })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+
+            // Visa resultatet i frontend
+            tweetPreview.innerHTML = `
+                <p><strong>LIBRIS suggestions:</strong> ${result['LIBRIS suggestions']}</p>
+                <p><strong>User original tweet:</strong> ${result['User original tweet']}</p>
+            `;
+            previewContainer.classList.remove('hidden');
+        } else {
+            alert('Failed to process the tweet. Try again!');
+        }
+    } catch (error) {
+        console.error('Error communicating with backend:', error);
+        alert('Something went wrong. Please try again!');
+    }
+});
