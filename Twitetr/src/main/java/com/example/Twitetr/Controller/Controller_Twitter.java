@@ -40,6 +40,7 @@ public class Controller_Twitter {
         return tweet.matches(".*" + invalidCharsRegex + ".*");
     }
 
+    //testa med: http://localhost:8080/api/tweets/test-manage-tweet
     @GetMapping("/test-manage-tweet")
     public ResponseEntity<HashMap<String, Object>> testManageTweet() {
         // Skapa mock-input
