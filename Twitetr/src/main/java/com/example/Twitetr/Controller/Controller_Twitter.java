@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @RestController
 @CrossOrigin
@@ -36,8 +37,10 @@ public class Controller_Twitter {
 
     // en metod för att veta vilka otillåtna tecken som finns.
     public boolean containsInvalidCharacters(String tweet){
-        String invalidCharsRegex = "[\\x00-\\x1F<>\"'`;]";
-        return tweet.matches(".*" + invalidCharsRegex + ".*");
+        String invalidCharsRegex = "[\\⛧𖤐⛥♱𐕣⁶⁶⁶⁶𖤐⁶♰𓃶🜏𖤐𐕣⁶⁶⁶☠︎︎🗡⛧☦卐卍\"]";
+        Pattern pattern = Pattern.compile(invalidCharsRegex);
+        
+        return pattern.matcher(tweet).find();
     }
 
     @PostMapping("/post-tweet")
@@ -53,6 +56,7 @@ public class Controller_Twitter {
         }
 
         if(containsInvalidCharacters(tweet)){
+            System.out.println("Sant");
             return ResponseEntity.badRequest().body("Error: Tweeten innehåller otillåtna tecken.");
         }
 
