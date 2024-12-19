@@ -40,18 +40,6 @@ public class Controller_Twitter {
         return tweet.matches(".*" + invalidCharsRegex + ".*");
     }
 
-    //testa med: http://localhost:8080/api/tweets/test-manage-tweet
-    @GetMapping("/test-manage-tweet")
-    public ResponseEntity<HashMap<String, Object>> testManageTweet() {
-        // Skapa mock-input
-        Map<String, String> testInput = new HashMap<>();
-        testInput.put("tweet", "Detta är ett test");
-        testInput.put("language", "svenska");
-
-        // Anropa den riktiga manageTweet-metoden
-        return manageTweet(testInput);
-    }
-
     @PostMapping("/post-tweet")
     public ResponseEntity<String> postTweet(@RequestBody Map<String, String> userInput){
         String tweet = userInput.get("tweet");
@@ -112,34 +100,23 @@ public class Controller_Twitter {
         HashMap<String, Object> spellingControl = new HashMap<>();
         String userTweet = userInput.get("tweet");
         String specified_language = userInput.get("language");
-
+    
         boolean empty_tweet = checkIfEmpty(userTweet);
         boolean no_language_specified = checkIfEmpty(specified_language);
-
+    
         if (empty_tweet || no_language_specified) {
-            spellingControl.put("Invalid", "The tweet is either empty or no language has been specified");
+            spellingControl.put("message", "The tweet is either empty or no language has been specified");
             return ResponseEntity.badRequest().body(spellingControl);
         }
-
-        //användning av containsInvalidCharacters metoden. Kontrollerar ifall det finns otillåtna tecken och skickar ett meddelande.
+    
         if (containsInvalidCharacters(userTweet)) {
-
-            spellingControl.put("Error", "Tweeten innehåller otillåtna tecken (t.ex. kontrolltecken, specialtecken som <, >, \", ';').");
+            spellingControl.put("message", "Tweet contains invalid characters.");
             return ResponseEntity.badRequest().body(spellingControl);
         }
-
-
-        //En mock metod (ska ersättas med LIBRIS API senare)
-        HashMap<String, Object> librisResponse = librisService.checkSpelling(userTweet, specified_language);
-
-        if (librisResponse.containsKey("suggestions")) {
-            spellingControl.put("LIBRIS suggestions", librisResponse.get("suggestions").toString());
-        } else {
-            spellingControl.put("LIBRIS suggestions", "Inga förslag hittades.");
-
-
-        }
+    
+        spellingControl.put("message", "Tweet received successfully!");
         spellingControl.put("User original tweet", userTweet);
+    
         return ResponseEntity.ok(spellingControl);
     }
 
