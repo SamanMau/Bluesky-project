@@ -46,18 +46,16 @@ submitButton.addEventListener('click', async (e) => {
             method: 'POST', // POST-begäran för att skicka data
             headers: { 'Content-Type': 'application/json' }, // Skickar JSON-format
             body: JSON.stringify({
-                tweet: plainText,      // Ändra nyckeln till "tweet"
-                language: "svenska"    // Lägg till språk som förväntas av backend
-            }), // JSON-struktur för tweet
+                tweet: plainText // Endast tweet behövs
+            }),
         });
 
         if (response.ok) {
-            const result = await response.json(); // Hämta JSON-svar från backend
-            alert(`Tweet before: ${result.before}\nTweet after: ${result.after}`); // Bekräfta sparad tweet
-            quill.setText(''); // Rensa editorn
-            charCounter.textContent = '0 / 280'; // Återställ räknaren
+            const result = await response.json();
+            alert(`Tweet before: ${result.before}\nTweet after: ${result.after}`);
         } else {
-            alert('Failed to post the tweet. Try again!');
+            const errorMessage = await response.text(); // Få backendens felmeddelande
+            alert(`Failed to post the tweet. Reason: ${errorMessage}`);
         }
     } catch (error) {
         const errorMessage = await response.text(); // Hämta felmeddelande
