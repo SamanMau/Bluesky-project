@@ -109,17 +109,22 @@ public class Controller_Twitter {
         boolean no_language_specified = checkIfEmpty(specified_language);
     
         if (empty_tweet || no_language_specified) {
-            spellingControl.put("message", "The tweet is either empty or no language has been specified");
+            spellingControl.put("invalid", "The tweet is either empty or no language has been specified");
             return ResponseEntity.badRequest().body(spellingControl);
         }
     
         if (containsInvalidCharacters(userTweet)) {
-            spellingControl.put("message", "Tweet contains invalid characters.");
+            spellingControl.put("invalid", "Tweet contains invalid characters.");
             return ResponseEntity.badRequest().body(spellingControl);
         }
+
+        Map<String, String> spellingCorrection = suggestedGrammar(userTweet, specified_language);
     
-        spellingControl.put("message", "Tweet received successfully!");
-        spellingControl.put("User original tweet", userTweet);
+        String correctedTweet = String.join(" ", spellingCorrection.values());
+
+        spellingControl.put("before", userTweet);
+        spellingControl.put("after", correctedTweet);
+        spellingControl.put("suggestions", spellingCorrection);
     
         return ResponseEntity.ok(spellingControl);
     }
@@ -140,37 +145,33 @@ public class Controller_Twitter {
         }
     }
 
-    public String suggestedGrammar(String tweet, String language){
+    public Map<String, String> suggestedGrammar(String tweet, String language){
         Map<String, String> spellingCorrection = new HashMap<>();
         spellingCorrection.put("Twitetr", "Twitter");
         spellingCorrection.put("proggrammering", "programmering");
         spellingCorrection.put("exampel", "exempel");
         spellingCorrection.put("staavning", "stavning");
 
-        if(tweetAboveLimit(tweet)){
-            return("error, överskridit antal tillåtna tecken!");
-        }
-
         String[] words = tweet.split(" ");
-        StringBuilder correctedTweet = new StringBuilder();
+        HashMap<String, String> corrections = new HashMap<>();
 
-        for (String word : words) {
+        for(String word : words){
             String word_lowerCase = word.toLowerCase();
-            if (spellingCorrection.containsKey(word_lowerCase)) {
-                correctedTweet.append(spellingCorrection.get(word_lowerCase)).append(" ");
-            } else {
-                correctedTweet.append(word).append(" ");
-            }
+            String correctWord = spellingCorrection.getOrDefault(word_lowerCase, word);
+            corrections.put(word, correctWord);
         }
 
-        return "Förbättrad tweet med språket (" + language + "): " + correctedTweet.toString().trim();
+        return corrections;
+
     }
 
+    /* 
     public static void main(String[] args) {
         Controller_Twitter controller = new Controller_Twitter();
         String inputTweet = "Twitetr är fantastisk!";
         String correctedTweet = controller.suggestedGrammar(inputTweet, "svenska");
         System.out.println(correctedTweet);
     }
+        */
 
 }
