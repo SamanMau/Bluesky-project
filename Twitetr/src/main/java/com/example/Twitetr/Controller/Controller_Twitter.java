@@ -4,7 +4,7 @@ package com.example.Twitetr.Controller;
 //http://localhost:8080/api/tweets
 
 import com.example.Twitetr.Entity.Tweet;
-import com.example.Twitetr.Service.LibrisService;
+import com.example.Twitetr.Service.LibrisManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
 public class Controller_Twitter {
     private ArrayList<Tweet> tweetList = new ArrayList<>();
     @Autowired
-    private LibrisService librisService;
+    private LibrisManager libris;
 
     @GetMapping //Hämtar alla Tweets
     public String getAllTweets() { //testmetod.
@@ -103,7 +104,7 @@ public class Controller_Twitter {
     public ResponseEntity<HashMap<String, Object>> manageTweet(@RequestBody Map<String, String> userInput) {
         HashMap<String, Object> spellingControl = new HashMap<>();
         String userTweet = userInput.get("tweet");
-        String specified_language = userInput.get("language");
+        String specified_language = "sv"; ///måste ändras sen, där användaren får välja eget språk.
     
         boolean empty_tweet = checkIfEmpty(userTweet);
         boolean no_language_specified = checkIfEmpty(specified_language);
@@ -118,7 +119,17 @@ public class Controller_Twitter {
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
-        Map<String, String> spellingCorrection = suggestedGrammar(userTweet, specified_language);
+        HashMap<String, Object> librisResponse = libris.checkSpelling(userTweet, specified_language);
+
+        if(librisResponse.containsKey("invalid")){
+            String key = "invalid";
+            Object value = librisResponse.get("invalid");
+
+            spellingControl.put(key, value);
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
+
+        Map<String, String> spellingCorrection = suggestedGrammar(librisResponse);
     
         String correctedTweet = String.join(" ", spellingCorrection.values());
 
@@ -145,24 +156,27 @@ public class Controller_Twitter {
         }
     }
 
-    public Map<String, String> suggestedGrammar(String tweet, String language){
+    public Map<String, String> suggestedGrammar(HashMap<String, Object> librisResponse){
         Map<String, String> spellingCorrection = new HashMap<>();
-        spellingCorrection.put("Twitetr", "Twitter");
-        spellingCorrection.put("proggrammering", "programmering");
-        spellingCorrection.put("exampel", "exempel");
-        spellingCorrection.put("staavning", "stavning");
 
-        String[] words = tweet.split(" ");
-        HashMap<String, String> corrections = new HashMap<>();
+        ArrayList<Map<String, Object>> spellingSuggestions = new ArrayList<>();
 
-        for(String word : words){
-            String word_lowerCase = word.toLowerCase();
-            String correctWord = spellingCorrection.getOrDefault(word_lowerCase, word);
-            corrections.put(word, correctWord);
+        if(librisResponse.get("suggestions") instanceof ArrayList){
+            spellingSuggestions = (ArrayList<Map<String, Object>>) librisResponse.get("suggestions");
         }
 
-        return corrections;
+        for(Map<String, Object> spellings : spellingSuggestions){
+            String before = (String) spellings.get("word");
+            String after = (String) spellings.get("suggestion");
 
+            if(after == null){
+                after = before;
+            }
+
+            spellingCorrection.put(before, after);
+        }
+
+        return spellingCorrection;
     }
 
     /* 
