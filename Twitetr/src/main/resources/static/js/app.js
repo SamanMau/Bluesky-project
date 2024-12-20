@@ -53,14 +53,14 @@ submitButton.addEventListener('click', async (e) => {
 
         if (response.ok) {
             const result = await response.json(); // Hämta JSON-svar från backend
-            alert(`Tweet saved: ${result.message}`); // Bekräfta sparad tweet
+            alert(`Tweet before: ${result.before}\nTweet after: ${result.after}`); // Bekräfta sparad tweet
             quill.setText(''); // Rensa editorn
             charCounter.textContent = '0 / 280'; // Återställ räknaren
         } else {
             alert('Failed to post the tweet. Try again!');
         }
     } catch (error) {
-        console.error('Error posting tweet:', error);
-        alert('Something went wrong. Please try again!');
+        const errorMessage = await response.text(); // Hämta felmeddelande
+        alert(`Failed to post the tweet. Reason: ${errorMessage}`);
     }
 });
