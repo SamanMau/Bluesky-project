@@ -117,9 +117,11 @@ public class Controller_Twitter {
             spellingControl.put("message", "Tweet contains invalid characters.");
             return ResponseEntity.badRequest().body(spellingControl);
         }
-    
-        spellingControl.put("message", "Tweet received successfully!");
-        spellingControl.put("User original tweet", userTweet);
+
+        spellingControl = librisService.checkSpelling(userTweet, specified_language);
+        
+        spellingControl.put("tweet", userTweet);
+        spellingControl.put("success", true);
     
         return ResponseEntity.ok(spellingControl);
     }
