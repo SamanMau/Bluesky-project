@@ -4,43 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page | Twitetr</title>
-    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/common.css">
+    <title>Threads Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
     <div class="container">
-        <div class="tweet-section">
-            <h1>What do you want to tweet today?</h1>
-            <form id="tweetForm" class="tweet-form">
-                <div id="editor-container">
-                    <div id="editor"></div>
-                </div>
-                <input type="hidden" name="content" id="hidden-content">
-                <p id="char-counter">0 / 280</p>
-                <button type="button" id="check-spelling-button">Check Spelling</button>
-                <button type="button" id="accept-suggestions-button" class="hidden">Accept Suggestions</button>
-                <button type="button" id="edit-suggestions-button" class="hidden">Edit Suggestions</button>
-                <button type="submit" id="publish-button" class="hidden">Publish Tweet</button>
-                <div id="loader" class="hidden"></div>
-            </form>
-            <div id="language-selector">
-                <label for="language">Language:</label>
-                <select id="language" name="language">
-                    <option value="en">English</option>
-                    <option value="sv">Swedish</option>
-                </select>
-            </div>
-            <div id="preview-container" class="hidden">
-                <h2>Preview:</h2>
-                <div id="tweet-preview"></div>
-            </div>
+        <h1>Create Your Post</h1>
+        <div class="input-group">
+            <textarea placeholder="What's on your mind?"></textarea>
+        </div>
+        <div class="action-buttons">
+            <button class="check-spelling">Check Spelling</button>
+            <button class="publish-tweet">Publish your thread </button>
+        </div>
+        <div class="suggestions">
+            <h3>Suggestions:</h3>
+            <div class="suggestion-item">No spelling errors detected.</div>
+        </div>
+        <div class="language-select">
+            <button>English</button>
+            <button>Swedish</button>
         </div>
     </div>
-    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-    <script src="js/app.js"></script>
 </body>
+ <script src="js/app.js" defer></script>
 
 </html>
