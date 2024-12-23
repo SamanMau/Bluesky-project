@@ -13,6 +13,8 @@ import java.util.HashMap;
 public class LibrisManager {
     private static final String LIBRIS_API_URL = "https://api.libris.kb.se/bibspell?text={text}&lang={lang}&key={apiKey}";
 
+
+
     public HashMap<String, Object> checkSpelling(String userInput, String specified_language) {
         RestTemplate restTemplate = new RestTemplate();
         HashMap<String, Object> map = new HashMap<>();
@@ -29,7 +31,9 @@ public class LibrisManager {
 
         try {
             String key = System.getenv("LIBRIS_API_NYCKEL");
-            String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), specified_language, key);
+            String URL = "http://api.libris.kb.se/bibspell/spell?query=" +
+             URLEncoder.encode(userInput, StandardCharsets.UTF_8) +
+             "&key=6AB126D40FB02C823F1AECAD8396E96A";
 
             // skicka GET-förfrågan
             ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);
