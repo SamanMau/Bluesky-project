@@ -1,53 +1,64 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const quill = new Quill('#editor', {
-        theme: 'snow',
-        placeholder: 'Write your tweet here...',
-        modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                ['link']
-            ]
+const quill = new Quill('#editor', {
+    theme: 'snow',
+    placeholder: 'Write your post here...',
+    modules: {
+        toolbar: [
+            [{ header: [1, 2, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            ['link', 'image'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['clean'],
+        ],
+    },
+});
+
+const charCounter = document.getElementById('char-counter');
+const submitButton = document.getElementById('submit-button');
+const loader = document.getElementById('loader');
+const previewContainer = document.getElementById('preview-container');
+const tweetPreview = document.getElementById('tweet-preview');
+
+// Update character counter and enable/disable submit button
+quill.on('text-change', () => {
+    const text = quill.getText().trim();
+    charCounter.textContent = `${text.length} / 280`;
+    submitButton.disabled = text.length === 0 || text.length > 280;
+
+    // Update preview
+    tweetPreview.innerHTML = quill.root.innerHTML;
+    previewContainer.classList.remove('hidden');
+});
+
+submitButton.addEventListener('click', async (e) => {
+    e.preventDefault(); // Förhindra sidladdning
+
+    const tweetContent = quill.getContents(); // Hämta rich text (Delta-format)
+    const plainText = quill.getText().trim(); // Hämta ren text
+
+    if (plainText.length === 0 || plainText.length > 280) {
+        alert('Tweet must be between 1 and 280 characters.');
+        return;
+    }
+
+    try {
+        // Skicka tweet som JSON till backend
+        const response = await fetch('http://localhost:8080/api/tweets/manage-tweet', {
+            method: 'POST', // POST-begäran för att skicka data
+            headers: { 'Content-Type': 'application/json' }, // Skickar JSON-format
+            body: JSON.stringify({
+                tweet: plainText // Endast tweet behövs
+            }),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Tweet before: ${result.before}\nTweet after: ${result.after}`);
+        } else {
+            const errorMessage = await response.text(); // Få backendens felmeddelande
+            alert(`Failed to post the tweet. Reason: ${errorMessage}`);
         }
-    });
-
-    const charCounter = document.getElementById('char-counter');
-    const checkSpellingButton = document.getElementById('check-spelling-button');
-    const acceptSuggestionsButton = document.getElementById('accept-suggestions-button');
-    const editSuggestionsButton = document.getElementById('edit-suggestions-button');
-    const publishButton = document.getElementById('publish-button');
-    const hiddenContent = document.getElementById('hidden-content');
-    const form = document.getElementById('tweetForm');
-
-    quill.on('text-change', () => {
-        const text = quill.getText().trim();
-        charCounter.textContent = `${text.length} / 280`;
-        publishButton.disabled = !(text.length > 0 && text.length <= 280);
-    });
-
-    checkSpellingButton.addEventListener('click', () => {
-        alert('Checking spelling...');
-        acceptSuggestionsButton.classList.remove('hidden');
-        editSuggestionsButton.classList.remove('hidden');
-    });
-
-    acceptSuggestionsButton.addEventListener('click', () => {
-        alert('Suggestions accepted.');
-        publishButton.classList.remove('hidden');
-    });
-
-    editSuggestionsButton.addEventListener('click', () => {
-        alert('Editing suggestions.');
-    });
-
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const text = quill.getText().trim();
-        hiddenContent.value = text;
-        alert(`Tweet submitted: ${text}`);
-    });
-
-    document.getElementById('language').addEventListener('change', (event) => {
-        alert(`Language changed to: ${event.target.value}`);
-    });
+    } catch (error) {
+        const errorMessage = await response.text(); // Hämta felmeddelande
+        alert(`Failed to post the tweet. Reason: ${errorMessage}`);
+    }
 });
