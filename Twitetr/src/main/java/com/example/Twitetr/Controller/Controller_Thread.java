@@ -90,7 +90,7 @@ public class Controller_Thread {
     public ResponseEntity<HashMap<String, Object>> manageThread(@RequestBody Map<String, String> userInput) {
         HashMap<String, Object> spellingControl = new HashMap<>();
         String userThread = userInput.get("thread");
-        String specified_language = "sv"; ///måste ändras sen, där användaren får välja eget språk.
+        String specified_language = userInput.get("language"); ///måste ändras sen, där användaren får välja eget språk.
     
         boolean empty_thread = checkIfEmpty(userThread);
         boolean no_language_specified = checkIfEmpty(specified_language);
