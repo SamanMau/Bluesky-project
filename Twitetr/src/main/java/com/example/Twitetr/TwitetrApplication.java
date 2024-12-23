@@ -13,7 +13,7 @@ public class TwitetrApplication {
                 .directory(System.getProperty("user.dir"))
                 .filename(".env")
                 .load();
-    	System.setProperty("LIBRIS_API_NYCKEL", dotenv.get("LIBRIS_API_NYCKEL"));
+				System.out.println("Loaded API Key: " + dotenv.get("LIBRIS_API_NYCKEL"));
    		
 		SpringApplication.run(TwitetrApplication.class, args);
 
