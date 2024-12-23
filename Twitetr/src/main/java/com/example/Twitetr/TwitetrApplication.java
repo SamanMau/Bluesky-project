@@ -9,12 +9,17 @@ public class TwitetrApplication {
 
 	//Klassen kör servern.
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.load();
+		Dotenv dotenv = Dotenv.configure()
+                .directory(System.getProperty("user.dir"))
+                .filename(".env")
+                .load();
     	System.setProperty("LIBRIS_API_NYCKEL", dotenv.get("LIBRIS_API_NYCKEL"));
-   		 SpringApplication.run(TwitetrApplication.class, args);
+   		
+		SpringApplication.run(TwitetrApplication.class, args);
 
-			System.out.println("Loaded API Key: " + System.getenv("LIBRIS_API_NYCKEL"));
+	//	System.out.println("Loaded API Key: " + System.getenv("LIBRIS_API_NYCKEL"));
 
+			
 	}
 
 }
