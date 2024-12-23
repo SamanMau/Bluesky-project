@@ -26,10 +26,10 @@ public class LibrisManager {
         HashMap<String, Object> map = new HashMap<>();
 
         if(specified_language.isEmpty()){
-            specified_language = "sv";
+            map.put("invalid", "Language is missing.");
+            return map;
         }
 
-        // Kontrollera input
         if (userInput.isEmpty()) {
             map.put("invalid", "Text is missing.");
             return map;
@@ -37,7 +37,6 @@ public class LibrisManager {
 
         try {
             String key = System.getenv("LIBRIS_API_NYCKEL");
-         //   System.out.println("Loaded API Key: " + key);
 
             if (key == null || key.isEmpty()) {
                 map.put("invalid", "The API key is missing");
@@ -48,8 +47,6 @@ public class LibrisManager {
 
             String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, 
             StandardCharsets.UTF_8), key);
-       //     System.out.println("Generated URL: " + URL);
-
 
             //skickar GET förfrågan till LIBRIS
             ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);
@@ -57,14 +54,13 @@ public class LibrisManager {
 
             var result = response.getBody();
 
-
             if (result == null || result.isEmpty()) {
-                map.put("invalid", "LIBRIS API returned an empty answer .");
+                map.put("invalid", "LIBRIS API returned an empty answer.");
                 return map;
             }
 
             if(response.getStatusCode() != HttpStatus.OK){
-                map.put("invalid", "Fel vid API-anrop. Statuskod: " + response.getStatusCode());
+                map.put("invalid", "Fel vid API-anrop: " + response.getStatusCode());
                 return map;
             }
 
@@ -81,6 +77,15 @@ public class LibrisManager {
 
     public boolean verifyApiKey(){
         String key = System.getenv("LIBRIS_API_NYCKEL");
-        return key != null && !key.isEmpty();
+
+        if(key != null){
+            return true;
+        }
+
+        if(!key.isEmpty()){
+            return true;
+        }
+
+        return false;
     }
 }

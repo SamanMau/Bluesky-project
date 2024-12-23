@@ -26,9 +26,6 @@ public class TwitetrApplication {
 
    		
 		SpringApplication.run(TwitetrApplication.class, args);
-
-	//	System.out.println("Loaded API Key: " + System.getenv("LIBRIS_API_NYCKEL"));
-
 			
 	}
 
