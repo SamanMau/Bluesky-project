@@ -19,10 +19,12 @@ public class TwitetrApplication {
 
 				String apiKey = dotenv.get("LIBRIS_API_NYCKEL");
 
+				/* 
 				LibrisManager librisManager = new LibrisManager();
 				if(!librisManager.verifyApiKey()){
 					System.err.println("API-nyckel saknas eller är ogiltig. Kontrollera .env-filen.");
 				}
+					*/
 
    		
 		SpringApplication.run(TwitetrApplication.class, args);
