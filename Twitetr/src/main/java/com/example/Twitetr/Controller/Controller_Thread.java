@@ -105,14 +105,11 @@ public class Controller_Thread {
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
+        System.out.println("CONTROLLER: manageThread is calling checkSpelling with: " + userThread);
         HashMap<String, Object> librisResponse = libris.checkSpelling(userThread, specified_language);
 
-        if(librisResponse.containsKey("invalid")){
-            String key = "invalid";
-            Object value = librisResponse.get("invalid");
-
-            spellingControl.put(key, value);
-            return ResponseEntity.badRequest().body(spellingControl);
+        if (librisResponse.containsKey("invalid")) {
+            return ResponseEntity.badRequest().body(librisResponse);
         }
 
         Map<String, String> spellingCorrection = suggestedGrammar(librisResponse);
