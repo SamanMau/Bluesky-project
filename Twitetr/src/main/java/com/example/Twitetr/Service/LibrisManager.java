@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 @Service
 public class LibrisManager {
-    private static final String LIBRIS_API_URL = "https://api.libris.kb.se/bibspell?text={text}&lang={lang}&key={apiKey}";
+    private static final String LIBRIS_API_URL = "http://api.libris.kb.se/bibspell/spell?query=%s&key=%s";
 
 
 
@@ -25,28 +25,37 @@ public class LibrisManager {
 
         // Kontrollera input
         if (userInput.isEmpty()) {
-            map.put("invalid", "Text saknas.");
+            map.put("invalid", "Text is missing.");
             return map;
         }
 
         try {
             String key = System.getenv("LIBRIS_API_NYCKEL");
-            String URL = "http://api.libris.kb.se/bibspell/spell?query=" +
-             URLEncoder.encode(userInput, StandardCharsets.UTF_8) +
-             "&key=6AB126D40FB02C823F1AECAD8396E96A";
+            if (key == null || key.isEmpty()) {
+                map.put("invalid", "The API key is missing");
+                return map;
+            }
 
-            // skicka GET-förfrågan
+
+
+            String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, 
+            StandardCharsets.UTF_8), key);
+
+            //skickar GET förfrågan till LIBRIS
             ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);
+
+
+            var result = response.getBody();
+
+
+            if (result == null || result.isEmpty()) {
+                map.put("invalid", "LIBRIS API returned an empty .");
+                return map;
+            }
 
             ObjectMapper oM = new ObjectMapper();
 
-         //   HashMap<String, Object> newMap = oM.readValue(response.getBody(), HashMap.class);
-
-            HashMap<String, Object> newMap = new ObjectMapper().readValue(response.getBody(), HashMap.class);
-
-            HashMap<String, Object> hashMap = newMap;
-
-            return hashMap;
+            return oM.readValue(response.getBody(), HashMap.class);
           
         } catch (Exception e) {
             e.printStackTrace();
