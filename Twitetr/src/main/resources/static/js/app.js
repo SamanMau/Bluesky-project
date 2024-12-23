@@ -42,11 +42,12 @@ submitButton.addEventListener('click', async (e) => {
 
     try {
         // Skicka tweet som JSON till backend
-        const response = await fetch('http://localhost:8080/api/tweets/manage-tweet', {
+        const response = await fetch('http://localhost:8080/api/threads/manage-thread', {
             method: 'POST', // POST-begäran för att skicka data
             headers: { 'Content-Type': 'application/json' }, // Skickar JSON-format
             body: JSON.stringify({
-                tweet: plainText // Endast tweet behövs
+                tweet: plainText, // Endast tweet behövs
+                language: 'sv', //bara tillfällig
             }),
         });
 
