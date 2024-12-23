@@ -165,5 +165,4 @@ public class Controller_Thread {
         return spellingCorrection;
     }
 
-
 }
