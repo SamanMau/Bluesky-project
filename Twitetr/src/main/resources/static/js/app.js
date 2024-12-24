@@ -97,7 +97,7 @@ quill.on('text-change', () => {
 
 // Helper function to check if text is valid
 function isTextValid(text) {
-    return text.trim().length > 0 && text.trim() !== '\n';
+    return text.trim().length > 0;
 }
 
 // Handle Language Change
@@ -124,7 +124,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: text, language: selectedLanguage }),
+        body: JSON.stringify({ text: text.trim(), language: selectedLanguage }),
     })
         .then(response => response.json())
         .then(data => {
