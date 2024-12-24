@@ -32,37 +32,37 @@ public class BlueSky_Controller {
 
     @PostMapping("/post-text")
     public ResponseEntity<String> postText(@RequestBody Map<String, String> userInput){
-        String texString = userInput.get("texString");
+        String text = userInput.get("text");
 
-        if(checkIfEmpty(texString)){
-            return ResponseEntity.badRequest().body("The texString does not exist. Please Try again");
+        if(checkIfEmpty(text)){
+            return ResponseEntity.badRequest().body("The text does not exist. Please Try again");
         }
 
-        if(textAboveLimit(texString)){
-            return ResponseEntity.badRequest().body("The texString has more than 500 characters.");
+        if(textAboveLimit(text)){
+            return ResponseEntity.badRequest().body("The text has more than 500 characters.");
         }
 
-        if(containsInvalidCharacters(texString)){
+        if(containsInvalidCharacters(text)){
             System.out.println("Sant");
-            return ResponseEntity.badRequest().body("Error: The texString has forbidden charachters.");
+            return ResponseEntity.badRequest().body("Error: The text has forbidden charachters.");
         }
 
-        boolean success = sendToBlueSkyAPI(texString);
+        boolean success = sendToBlueSkyAPI(text);
 
         if(success){
-            return ResponseEntity.ok("The texString has been sent.");
+            return ResponseEntity.ok("The text has been sent.");
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error: Cannot publish texString.");
+                    .body("Error: Cannot publish text.");
         }
 
     }
 
     //skickar text till Bluesky API
-    public boolean sendToBlueSkyAPI(String texString){
+    public boolean sendToBlueSkyAPI(String text){
         try {
             //mock - kod
-            System.out.println("The following texString is being sent to BlueSky API: " + texString);
+            System.out.println("The following text is being sent to BlueSky API: " + text);
             return true;
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -72,31 +72,31 @@ public class BlueSky_Controller {
 
     // ResponseEntity is a clas used to show HTTP requests, such as status code.
     @PostMapping
-    public ResponseEntity<String> addText(@RequestBody BlueSkyText texString) {
-        if(texString.getTextInformation() == null){
-            return ResponseEntity.badRequest().body("The texString does not exist. Please Try again");
+    public ResponseEntity<String> addText(@RequestBody BlueSkyText text) {
+        if(text.getTextInformation() == null){
+            return ResponseEntity.badRequest().body("The text does not exist. Please Try again");
         }
-        else if(texString.getTextInformation().isEmpty()){
-            return ResponseEntity.badRequest().body("The texString is empty and therefore cannot be sent. Please try again.");
+        else if(text.getTextInformation().isEmpty()){
+            return ResponseEntity.badRequest().body("The text is empty and therefore cannot be sent. Please try again.");
         }
 
         else {
-            textList.add(texString);
-            return ResponseEntity.ok("Text successfully received: " + texString.getTextInformation());
+            textList.add(text);
+            return ResponseEntity.ok("Text successfully received: " + text.getTextInformation());
         }
     }
 
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody Map<String, String> userInput) {
         HashMap<String, Object> spellingControl = new HashMap<>();
-        String userText = userInput.get("texString");
+        String userText = userInput.get("text");
         String specified_language = userInput.get("language"); ///måste ändras sen, där användaren får välja eget språk.
     
         boolean empty_text = checkIfEmpty(userText);
         boolean no_language_specified = checkIfEmpty(specified_language);
     
         if (empty_text || no_language_specified) {
-            spellingControl.put("invalid", "The texString is either empty or no language has been specified");
+            spellingControl.put("invalid", "The text is either empty or no language has been specified");
             return ResponseEntity.badRequest().body(spellingControl);
         }
     

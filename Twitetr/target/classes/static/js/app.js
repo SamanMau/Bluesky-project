@@ -113,8 +113,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
     const text = quill.getText();
 
     if (!isTextValid(text)) { // Validate text
-        alert('Please write something before checking spelling.');
-        return;
+        return text.trim().length > 0;
     }
 
     loader.style.display = 'block';
@@ -124,7 +123,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ thread: text, language: selectedLanguage }),
+        body: JSON.stringify({ text: text, language: selectedLanguage }),
     })
         .then(response => response.json())
         .then(data => {
