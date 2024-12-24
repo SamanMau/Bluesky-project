@@ -32,7 +32,7 @@ public class BlueSky_Controller {
 
     @PostMapping("/post-text")
     public ResponseEntity<String> postText(@RequestBody Map<String, String> userInput){
-        String text = userInput.get("text");
+        String text = userInput.get("userText");
 
         if(checkIfEmpty(text)){
             return ResponseEntity.badRequest().body("The text does not exist. Please Try again");
@@ -89,7 +89,7 @@ public class BlueSky_Controller {
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody Map<String, String> userInput) {
         HashMap<String, Object> spellingControl = new HashMap<>();
-        String userText = userInput.get("text");
+        String userText = userInput.get("userText");
         String specified_language = userInput.get("language"); ///måste ändras sen, där användaren får välja eget språk.
     
         boolean empty_text = checkIfEmpty(userText);
@@ -124,7 +124,7 @@ public class BlueSky_Controller {
     }
 
     public boolean checkIfEmpty(String input){
-        if(input == null || input.isEmpty()){
+        if(input == null || input.trim().isEmpty()){
             return true;
         } else {
             return false;

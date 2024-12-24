@@ -124,7 +124,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: text.trim(), language: selectedLanguage }),
+        body: JSON.stringify({userText: text.trim(), language: selectedLanguage }),
     })
         .then(response => response.json())
         .then(data => {
@@ -164,7 +164,7 @@ submitButton.addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ thread: text }),
+        body: JSON.stringify({userText: text.trim()}),
     })
         .then(response => response.text())
         .then(message => {
