@@ -113,7 +113,8 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
     const text = quill.getText();
 
     if (!isTextValid(text)) { // Validate text
-        return text.trim().length > 0;
+        alert('Please write something before checking spelling.');
+        return;
     }
 
     loader.style.display = 'block';
