@@ -110,9 +110,9 @@ document.querySelectorAll('.language-select button').forEach(button => {
 
 // Handle Check Spelling
 document.querySelector('.check-spelling').addEventListener('click', () => {
-    const text = quill.getText();
+    const text = quill.getText().replace(/\n/g, '').trim(); // Ta bort nya rader och trimma whitespace
 
-    if (!isTextValid(text)) { // Validate text
+    if (text.length === 0) { // Kontrollera om texten verkligen är tom
         alert('Please write something before checking spelling.');
         return;
     }
@@ -124,7 +124,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({userText: text.trim(), language: selectedLanguage }),
+        body: JSON.stringify({ userText: text, language: selectedLanguage }),
     })
         .then(response => response.json())
         .then(data => {
