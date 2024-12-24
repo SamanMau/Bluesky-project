@@ -24,7 +24,7 @@ public class BlueSky_Controller {
 
     // en metod för att veta vilka otillåtna tecken som finns.
     public boolean containsInvalidCharacters(String text){
-        String invalidCharsRegex = "[\\⛧𖤐⛥♱𐕣⁶⁶⁶⁶𖤐⁶♰𓃶🜏𖤐𐕣⁶⁶⁶☠︎︎🗡⛧☦卐卍\"]";
+        String invalidCharsRegex = "[\\⛧𖤐𐕣𓃶🜏𖤐𐕣⁶☠︎︎🗡⛧☦卐卍\"]";
         Pattern pattern = Pattern.compile(invalidCharsRegex);
         
         return pattern.matcher(text).find();
@@ -90,8 +90,9 @@ public class BlueSky_Controller {
     public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody Map<String, String> userInput) {
         HashMap<String, Object> spellingControl = new HashMap<>();
         String userText = userInput.get("userText");
-        String specified_language = userInput.get("language"); ///måste ändras sen, där användaren får välja eget språk.
-    
+        String specified_language = userInput.get("language");
+
+
         boolean empty_text = checkIfEmpty(userText);
         boolean no_language_specified = checkIfEmpty(specified_language);
     
