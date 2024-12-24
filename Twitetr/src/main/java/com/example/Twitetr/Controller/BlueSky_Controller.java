@@ -1,6 +1,6 @@
 package com.example.Twitetr.Controller;
 
-import com.example.Twitetr.Entity.Thread;
+import com.example.Twitetr.Entity.BlueSkyText;
 import com.example.Twitetr.Service.LibrisManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,53 +16,53 @@ import java.util.regex.Pattern;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/threads")
-public class Controller_Thread {
-    private ArrayList<Thread> threadList = new ArrayList<>();
+@RequestMapping("/api/text")
+public class BlueSky_Controller {
+    private ArrayList<BlueSkyText> textList = new ArrayList<>();
     @Autowired
     private LibrisManager libris;
 
     // en metod för att veta vilka otillåtna tecken som finns.
-    public boolean containsInvalidCharacters(String thread){
+    public boolean containsInvalidCharacters(String text){
         String invalidCharsRegex = "[\\⛧𖤐⛥♱𐕣⁶⁶⁶⁶𖤐⁶♰𓃶🜏𖤐𐕣⁶⁶⁶☠︎︎🗡⛧☦卐卍\"]";
         Pattern pattern = Pattern.compile(invalidCharsRegex);
         
-        return pattern.matcher(thread).find();
+        return pattern.matcher(text).find();
     }
 
-    @PostMapping("/post-thread")
-    public ResponseEntity<String> postThread(@RequestBody Map<String, String> userInput){
-        String thread = userInput.get("thread");
+    @PostMapping("/post-text")
+    public ResponseEntity<String> postText(@RequestBody Map<String, String> userInput){
+        String texString = userInput.get("texString");
 
-        if(checkIfEmpty(thread)){
-            return ResponseEntity.badRequest().body("The thread does not exist. Please Try again");
+        if(checkIfEmpty(texString)){
+            return ResponseEntity.badRequest().body("The texString does not exist. Please Try again");
         }
 
-        if(threadAboveLimit(thread)){
-            return ResponseEntity.badRequest().body("The thread has more than 500 characters.");
+        if(textAboveLimit(texString)){
+            return ResponseEntity.badRequest().body("The texString has more than 500 characters.");
         }
 
-        if(containsInvalidCharacters(thread)){
+        if(containsInvalidCharacters(texString)){
             System.out.println("Sant");
-            return ResponseEntity.badRequest().body("Error: The thread has forbidden charachters.");
+            return ResponseEntity.badRequest().body("Error: The texString has forbidden charachters.");
         }
 
-        boolean success = sendToThreadAPI(thread);
+        boolean success = sendToBlueSkyAPI(texString);
 
         if(success){
-            return ResponseEntity.ok("The thread has been sent.");
+            return ResponseEntity.ok("The texString has been sent.");
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error: Cannot publish thread.");
+                    .body("Error: Cannot publish texString.");
         }
 
     }
 
-    //skickar threads till threads API
-    public boolean sendToThreadAPI(String thread){
+    //skickar text till Bluesky API
+    public boolean sendToBlueSkyAPI(String texString){
         try {
             //mock - kod
-            System.out.println("The followign thread is being sent to Threads API: " + thread);
+            System.out.println("The following texString is being sent to BlueSky API: " + texString);
             return true;
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -72,41 +72,41 @@ public class Controller_Thread {
 
     // ResponseEntity is a clas used to show HTTP requests, such as status code.
     @PostMapping
-    public ResponseEntity<String> addThread(@RequestBody Thread thread) {
-        if(thread.getThreadInformation() == null){
-            return ResponseEntity.badRequest().body("The thread does not exist. Please Try again");
+    public ResponseEntity<String> addText(@RequestBody BlueSkyText texString) {
+        if(texString.getTextInformation() == null){
+            return ResponseEntity.badRequest().body("The texString does not exist. Please Try again");
         }
-        else if(thread.getThreadInformation().isEmpty()){
-            return ResponseEntity.badRequest().body("The thread is empty and therefore cannot be sent. Please try again.");
+        else if(texString.getTextInformation().isEmpty()){
+            return ResponseEntity.badRequest().body("The texString is empty and therefore cannot be sent. Please try again.");
         }
 
         else {
-            threadList.add(thread);
-            return ResponseEntity.ok("Thread successfully received: " + thread.getThreadInformation());
+            textList.add(texString);
+            return ResponseEntity.ok("Text successfully received: " + texString.getTextInformation());
         }
     }
 
-    @PostMapping("/manage-thread")
-    public ResponseEntity<HashMap<String, Object>> manageThread(@RequestBody Map<String, String> userInput) {
+    @PostMapping("/manage-text")
+    public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody Map<String, String> userInput) {
         HashMap<String, Object> spellingControl = new HashMap<>();
-        String userThread = userInput.get("thread");
+        String userText = userInput.get("texString");
         String specified_language = userInput.get("language"); ///måste ändras sen, där användaren får välja eget språk.
     
-        boolean empty_thread = checkIfEmpty(userThread);
+        boolean empty_text = checkIfEmpty(userText);
         boolean no_language_specified = checkIfEmpty(specified_language);
     
-        if (empty_thread || no_language_specified) {
-            spellingControl.put("invalid", "The thread is either empty or no language has been specified");
+        if (empty_text || no_language_specified) {
+            spellingControl.put("invalid", "The texString is either empty or no language has been specified");
             return ResponseEntity.badRequest().body(spellingControl);
         }
     
-        if (containsInvalidCharacters(userThread)) {
-            spellingControl.put("invalid", "Thread contains invalid characters.");
+        if (containsInvalidCharacters(userText)) {
+            spellingControl.put("invalid", "Text contains invalid characters.");
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
-        System.out.println("CONTROLLER: manageThread is calling checkSpelling with: " + userThread);
-        HashMap<String, Object> librisResponse = libris.checkSpelling(userThread, specified_language);
+        System.out.println("CONTROLLER: manageText is calling checkSpelling with: " + userText);
+        HashMap<String, Object> librisResponse = libris.checkSpelling(userText, specified_language);
 
         if (librisResponse.containsKey("invalid")) {
             return ResponseEntity.badRequest().body(librisResponse);
@@ -114,10 +114,10 @@ public class Controller_Thread {
 
         Map<String, String> spellingCorrection = suggestedGrammar(librisResponse);
     
-        String correctedThread = String.join(" ", spellingCorrection.values());
+        String correctedText = String.join(" ", spellingCorrection.values());
 
-        spellingControl.put("before", userThread);
-        spellingControl.put("after", correctedThread);
+        spellingControl.put("before", userText);
+        spellingControl.put("after", correctedText);
         spellingControl.put("suggestions", spellingCorrection);
     
         return ResponseEntity.ok(spellingControl);
@@ -131,8 +131,8 @@ public class Controller_Thread {
         }
     }
 
-    public boolean threadAboveLimit(String thread){
-        if(thread.length() > 500){
+    public boolean textAboveLimit(String text){
+        if(text.length() > 500){
             return true;
         } else {
             return false;

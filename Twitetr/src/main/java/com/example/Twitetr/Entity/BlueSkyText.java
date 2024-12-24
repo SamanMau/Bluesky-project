@@ -1,13 +1,13 @@
 package com.example.Twitetr.Entity;
 
-public class Thread {
+public class BlueSkyText {
     private String thread_information;
 
-    public Thread(){
+    public BlueSkyText(){
 
     }
 
-    public String getThreadInformation(){
+    public String getTextInformation(){
         return thread_information;
     }
 
