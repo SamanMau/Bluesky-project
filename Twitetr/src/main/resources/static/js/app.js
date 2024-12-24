@@ -119,7 +119,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
 
     loader.style.display = 'block';
 
-    fetch('/api/threads/manage-thread', {
+    fetch('/api/text/manage-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ submitButton.addEventListener('click', () => {
 
     loader.style.display = 'block';
 
-    fetch('/api/threads/post-thread', {
+    fetch('/api/text/post-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ submitButton.addEventListener('click', () => {
         })
         .catch(error => {
             loader.style.display = 'none';
-            console.error('Error while submitting thread:', error);
-            alert('An error occurred while submitting your thread.');
+            console.error('Error while submitting text:', error);
+            alert('An error occurred while submitting your text.');
         });
 });
