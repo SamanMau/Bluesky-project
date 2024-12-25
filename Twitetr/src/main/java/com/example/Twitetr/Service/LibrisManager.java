@@ -23,57 +23,33 @@ public class LibrisManager {
 
     public HashMap<String, Object> checkSpelling(String userInput, String specified_language) {
         RestTemplate restTemplate = new RestTemplate();
+        
         HashMap<String, Object> map = new HashMap<>();
-
-        if(specified_language.isEmpty()){
-            map.put("invalid", "Language is missing.");
-            return map;
-        }
-
-        if (userInput.isEmpty()) {
-            map.put("invalid", "Text is missing.");
-            return map;
-        }
-
+        String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), key);
+        
+        System.out.println("LIBRIS API URL: " + URL);
+    
         try {
-            String key = System.getenv("LIBRIS_API_NYCKEL");
-            System.out.println("laddad nyckel: " + key);
-
-            if (key == null || key.isEmpty()) {
-                map.put("invalid", "The API key is missing");
-                return map;
-            }
-
-
-
-            String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, 
-            StandardCharsets.UTF_8), key);
-
-            //skickar GET förfrågan till LIBRIS
+            // Skickar GET-förfrågan
             ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);
-
-
-            var result = response.getBody();
-
-            if (result == null || result.isEmpty()) {
-                map.put("invalid", "LIBRIS API returned an empty answer.");
-                return map;
+            
+            // Logga svaret från API
+            System.out.println("LIBRIS API Response: " + response.getBody());
+    
+            // Om du vill granska HTTP-statuskoden
+            System.out.println("HTTP Status Code: " + response.getStatusCode());
+    
+            // Processera API-svaret
+            String result = response.getBody();
+            if (result != null) {
+                map = parseJSON(result);
             }
-
-            if(response.getStatusCode() != HttpStatus.OK){
-                map.put("invalid", "Fel vid API-anrop: " + response.getStatusCode());
-                return map;
-            }
-
-            ObjectMapper oM = new ObjectMapper();
-
-            return oM.readValue(response.getBody(), HashMap.class);
-          
         } catch (Exception e) {
             e.printStackTrace();
-            map.put("invalid", "Fel uppstod vid kommunikation med LIBRIS. ");
-            return map;
+            map.put("invalid", "LIBRIS API-fel: " + e.getMessage());
         }
+    
+        return map;
     }
 
     public boolean verifyApiKey(){
