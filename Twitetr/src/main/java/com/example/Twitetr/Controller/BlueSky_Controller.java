@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import java.util.HashMap;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 @RequestMapping("/api/text")
 public class BlueSky_Controller {
 

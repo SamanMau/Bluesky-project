@@ -18,6 +18,7 @@ public class TwitetrApplication {
                 .load();
 
 				String apiKey = dotenv.get("LIBRIS_API_NYCKEL");
+				System.out.println("hej från twitterapplication klassen");
 
 				/* 
 				LibrisManager librisManager = new LibrisManager();

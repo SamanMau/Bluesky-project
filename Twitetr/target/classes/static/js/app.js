@@ -69,7 +69,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         return;
     }
 
-    fetch('/api/text/manage-text', {
+    fetch('http://localhost:8080/api/text/manage-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
