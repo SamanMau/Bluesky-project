@@ -69,7 +69,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         return;
     }
 
-    fetch('/api/text/manage-text', {
+    fetch('http://localhost:8080/api/text/manage-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ submitButton.addEventListener('click', () => {
 
     loader.style.display = 'block';
 
-    fetch('/api/text/post-text', {
+    fetch('http://localhost:8080/api/text/post-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

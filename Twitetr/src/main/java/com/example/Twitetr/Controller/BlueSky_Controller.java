@@ -1,6 +1,5 @@
 package com.example.Twitetr.Controller;
 
-import com.example.Twitetr.Entity.BlueSkyText;
 import com.example.Twitetr.Service.LibrisManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
