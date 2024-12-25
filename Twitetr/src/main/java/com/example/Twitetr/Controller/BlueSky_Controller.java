@@ -19,21 +19,21 @@ public class BlueSky_Controller {
     @Autowired
     private LibrisManager libris;
 
-    // Check for forbidden characters
+    // The following method checks if the text written by the user contains invalid chracthers.
     public boolean containsInvalidCharacters(String text) {
-        String invalidCharsRegex = "[\\⛧𖤐⛥♱𐕣⁶⁶⁶⁶𖤐⁶♰𓃶🜏𖤐𐕣⁶⁶⁶☠︎︎🗡⛧☦卐卍\"]";
+        String invalidCharsRegex = "[\\𖤐𐕣⁶𖤐𓃶🜏𖤐𐕣☠︎︎🗡⛧☦卐卍\"]";
         Pattern pattern = Pattern.compile(invalidCharsRegex);
         return pattern.matcher(text).find();
     }
 
-    // Check if the text is empty
+    //This method checks if the users input is empty.
     public boolean checkIfEmpty(String text) {
         return text == null || text.trim().isEmpty();
     }
 
-    // Check if the text exceeds a specific limit
+    // This method checks if the text exceeds 300 charachters. This is the limit in Bluesky.
     public boolean textAboveLimit(String text) {
-        return text.length() > 500;
+        return text.length() > 300;
     }
 
     // Endpoint to handle text validation and processing
@@ -53,8 +53,7 @@ public class BlueSky_Controller {
             return ResponseEntity.badRequest().body("Error: The text contains forbidden characters.");
         }
 
-        // Example API call to send validated text to a service
-        boolean success = sendToBlueSkyAPI(text);
+        boolean success = sendToBlueSkyAPI(text); //ska tas bort
 
         if (success) {
             return ResponseEntity.ok("The text has been successfully sent.");
@@ -64,8 +63,7 @@ public class BlueSky_Controller {
         }
     }
 
-    private boolean sendToBlueSkyAPI(String text) {
-        // Simulate API call success
+    public boolean sendToBlueSkyAPI(String text) {
         return true;
     }
 
@@ -75,11 +73,14 @@ public class BlueSky_Controller {
         String userText = userInput.get("userText");
         String specified_language = userInput.get("language");
 
-        boolean empty_text = checkIfEmpty(userText);
-        boolean no_language_specified = checkIfEmpty(specified_language);
-    
-        if (empty_text || no_language_specified) {
-            spellingControl.put("invalid", "The text is either empty or no language has been specified");
+
+        if(checkIfEmpty(userText)){
+            spellingControl.put("invalid", "The text is empty");
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
+
+        if(checkIfEmpty(specified_language)){
+            spellingControl.put("invalid", "No language has been specified");
             return ResponseEntity.badRequest().body(spellingControl);
         }
     
@@ -88,18 +89,6 @@ public class BlueSky_Controller {
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
-
-        /* 
-        spellingControl.put("before", userText);
-        spellingControl.put("after", userText.toUpperCase()); // Gör texten versaler som exempel
-        spellingControl.put("suggestions", Map.of("word1", "suggestion1", "word2", "suggestion2"));
-    
-        return ResponseEntity.ok(spellingControl);
-
-        */
-
-
-        
         HashMap<String, Object> librisResponse = libris.checkSpelling(userText, specified_language);
 
         if (librisResponse.containsKey("invalid")) {
