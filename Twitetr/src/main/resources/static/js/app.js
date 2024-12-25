@@ -108,12 +108,29 @@ document.querySelectorAll('.language-select button').forEach(button => {
     });
 });
 
+// Validate text input before sending to backend
+function validateTextInput(text) {
+    console.log("Validating text input:", text); // Log text input for debugging
+    if (!text || text.trim().length === 0) {
+        alert('Please write something before checking spelling.');
+        return false;
+    }
+
+    if (text.length > 500) {
+        alert('The text exceeds the limit of 500 characters.');
+        return false;
+    }
+
+    return true;
+}
+
 // Handle Check Spelling
 document.querySelector('.check-spelling').addEventListener('click', () => {
-    const text = quill.getText().trim();
+    const text = quill.getText().replace(/\n/g, '').trim(); // Remove newlines and trim whitespace
 
-    if (!isTextValid(text)) { // Validate text
-        alert('Please write something before checking spelling.');
+    console.log("Text before sending to backend:", text); // Log text value for debugging
+
+    if (!validateTextInput(text)) {
         return;
     }
 
@@ -126,7 +143,10 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         },
         body: JSON.stringify({userText: text, language: selectedLanguage || 'sv' }), //tillfälligt, att default är svenska //saman
     })
-        .then(response => response.json())
+        .then(response => {
+            console.log("Backend response status:", response.status); // Log response status
+            return response.json();
+        })
         .then(data => {
             loader.style.display = 'none';
             if (data.before && data.after) {
@@ -151,6 +171,8 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
 // Handle Submit Button
 submitButton.addEventListener('click', () => {
     const text = quill.getText();
+
+    console.log("Text to publish:", text); // Log text to be published
 
     if (!isTextValid(text)) { // Validate text
         alert('Please write something before submitting.');
