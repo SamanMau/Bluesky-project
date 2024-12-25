@@ -69,7 +69,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         return;
     }
 
-    fetch('http://localhost:8080/api/text/manage-text', {
+    fetch('/api/text/manage-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         body: JSON.stringify({userText: text, language: selectedLanguage || 'sv' }), //tillfälligt, att default är svenska //saman
     })
         .then(response => {
-            console.log("Fetch response status:", response.status); // Log response status
+            console.log("Fetch response:", response);
             
             if(!response.ok){
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -100,7 +100,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
             }
         })
         .catch(error => {
-            console.error('Error while checking spelling:', error);
+            console.error('Fetch error:', error);
             alert('An error occurred while checking spelling.');
         });
 });
@@ -118,7 +118,7 @@ submitButton.addEventListener('click', () => {
 
     loader.style.display = 'block';
 
-    fetch('http://localhost:8080/api/text/post-text', {
+    fetch('/api/text/post-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
