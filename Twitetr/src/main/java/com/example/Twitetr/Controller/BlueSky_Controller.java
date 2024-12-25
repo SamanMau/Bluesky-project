@@ -88,14 +88,18 @@ public class BlueSky_Controller {
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
+
+        /* 
         spellingControl.put("before", userText);
         spellingControl.put("after", userText.toUpperCase()); // Gör texten versaler som exempel
         spellingControl.put("suggestions", Map.of("word1", "suggestion1", "word2", "suggestion2"));
     
         return ResponseEntity.ok(spellingControl);
 
+        */
 
-        /*
+
+        
         HashMap<String, Object> librisResponse = libris.checkSpelling(userText, specified_language);
 
         if (librisResponse.containsKey("invalid")) {
@@ -112,7 +116,7 @@ public class BlueSky_Controller {
     
         return ResponseEntity.ok(spellingControl);
 
-        */
+        
     }
 
     public Map<String, String> suggestedGrammar(Map<String, Object> librisResponse){

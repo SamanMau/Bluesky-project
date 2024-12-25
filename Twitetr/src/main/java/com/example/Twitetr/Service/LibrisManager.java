@@ -37,6 +37,7 @@ public class LibrisManager {
 
         try {
             String key = System.getenv("LIBRIS_API_NYCKEL");
+            System.out.println("laddad nyckel: " + key);
 
             if (key == null || key.isEmpty()) {
                 map.put("invalid", "The API key is missing");

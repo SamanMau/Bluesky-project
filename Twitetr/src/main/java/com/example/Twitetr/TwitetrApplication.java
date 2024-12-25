@@ -9,16 +9,13 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class TwitetrApplication {
-
-	//Klassen kör servern.
 	public static void main(String[] args) {
+		System.out.println("Current working directory: " + System.getProperty("user.dir"));
+
 		Dotenv dotenv = Dotenv.configure()
                 .directory(System.getProperty("user.dir"))
                 .filename(".env")
                 .load();
-
-				String apiKey = dotenv.get("LIBRIS_API_NYCKEL");
-				System.out.println("hej från twitterapplication klassen");
 
 				/* 
 				LibrisManager librisManager = new LibrisManager();
