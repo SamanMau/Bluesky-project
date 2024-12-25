@@ -71,6 +71,7 @@ public class BlueSky_Controller {
     }
 
     @PostMapping("/manage-text")
+    @CrossOrigin
     public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody HashMap<String, String> userInput) {
         HashMap<String, Object> spellingControl = new HashMap<>();
         String userText = userInput.get("userText");

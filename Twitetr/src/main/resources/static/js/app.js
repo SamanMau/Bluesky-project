@@ -61,14 +61,13 @@ function validateTextInput(text) {
 // Handle Check Spelling
 document.querySelector('.check-spelling').addEventListener('click', () => {
     const text = quill.getText().replace(/\n/g, '').trim(); // Remove newlines and trim whitespace
-
-    console.log("Text before sending to backend:", text); // Log text value for debugging
+    
+    console.log("Check spelling button clicked");
+    console.log("Text to send: ", text);
 
     if (!validateTextInput(text)) {
         return;
     }
-
-    loader.style.display = 'block';
 
     fetch('/api/text/manage-text', {
         method: 'POST',
@@ -78,11 +77,16 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         body: JSON.stringify({userText: text, language: selectedLanguage || 'sv' }), //tillfälligt, att default är svenska //saman
     })
         .then(response => {
-            console.log("Backend response status:", response.status); // Log response status
+            console.log("Fetch response status:", response.status); // Log response status
+            
+            if(!response.ok){
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
             return response.json();
-        })
-        .then(data => {
-            loader.style.display = 'none';
+
+        }).then(data => {
+            console.log("Response from backend: ", data);
             if (data.before && data.after) {
                 alert('Spelling check complete!');
                 suggestionsContainer.innerHTML = `
@@ -96,7 +100,6 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
             }
         })
         .catch(error => {
-            loader.style.display = 'none';
             console.error('Error while checking spelling:', error);
             alert('An error occurred while checking spelling.');
         });
