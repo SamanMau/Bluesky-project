@@ -69,7 +69,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         return;
     }
 
-    fetch('http://localhost:8080/api/text/manage-text', {
+    fetch('http://127.0.0.1:8080/api/text/manage-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ submitButton.addEventListener('click', () => {
 
     // loader.style.display = 'block';
 
-    fetch('http://localhost:8080/api/text/post-text', {
+    fetch('http://127.0.0.1:8080/api/text/post-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -153,10 +153,12 @@ submitButton.addEventListener('click', async (e) => {
 
     try {
         // Skicka text till backend och hämta svar
-        const response = await fetch('http://localhost:8080/api/text/manage-text', {
+        const response = await fetch('http://127.0.0.1:8080/api/text/manage-text', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tweet: plainText, language: 'svenska' })
+            body: JSON.stringify({ tweet: plainText, language: 'svenska' }),
+            
+            
         });
 
         if (response.ok) {
