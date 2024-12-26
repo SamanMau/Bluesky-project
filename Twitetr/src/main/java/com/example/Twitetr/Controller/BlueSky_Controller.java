@@ -36,36 +36,51 @@ public class BlueSky_Controller {
         return text.length() > 300;
     }
 
+
+    public HashMap<String, Object> mockBlueSkyAPI(String text) {
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Text received by BlueSky API");
+        response.put("receivedText", text);
+        return response;
+    }
+
+
     // Endpoint to handle text validation and processing
     @PostMapping("/post-text")
-    public ResponseEntity<String> postText(@RequestBody Map<String, String> userInput) {
+    public ResponseEntity<HashMap<String, Object>> postText(@RequestBody Map<String, String> userInput) {
         String text = userInput.get("userText");
 
         if (checkIfEmpty(text)) {
-            return ResponseEntity.badRequest().body("The text does not exist. Please try again.");
+            HashMap<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "The text does not exist. Please try again.");
+            return ResponseEntity.badRequest().body(errorResponse);
         }
 
         if (textAboveLimit(text)) {
-            return ResponseEntity.badRequest().body("The text exceeds the limit of 500 characters.");
+            HashMap<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "The text exceeds the limit of 500 characters.");
+            return ResponseEntity.badRequest().body(errorResponse);
         }
 
         if (containsInvalidCharacters(text)) {
-            return ResponseEntity.badRequest().body("Error: The text contains forbidden characters.");
+            HashMap<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error: The text contains forbidden characters.");
+            return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        boolean success = sendToBlueSkyAPI(text); //ska tas bort
+      HashMap<String, Object> apiResponse = mockBlueSkyAPI(text);
 
-        if (success) {
-            return ResponseEntity.ok("The text has been successfully sent.");
+        if ("success".equals(apiResponse.get("status"))) {
+            return ResponseEntity.ok(apiResponse);
         } else {
+            HashMap<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Unable to process the text with BlueSky API.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error: Unable to process the text.");
+                .body(errorResponse);
         }
     }
 
-    public boolean sendToBlueSkyAPI(String text) {
-        return true;
-    }
 
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody HashMap<String, String> userInput) {
