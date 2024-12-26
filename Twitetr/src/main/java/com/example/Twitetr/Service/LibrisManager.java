@@ -34,6 +34,10 @@ public class LibrisManager {
         String key = getKey();
         String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), key);
         
+        System.out.println("LIBRIS API URL: " + URL);
+        System.out.println("User input: " + userInput);
+        System.out.println("Specified language: " + specified_language);
+
         try {
             // get förfrågan skickas
             ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);

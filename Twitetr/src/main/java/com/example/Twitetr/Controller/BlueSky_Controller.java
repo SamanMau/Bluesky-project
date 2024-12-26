@@ -105,6 +105,9 @@ public class BlueSky_Controller {
 
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody HashMap<String, String> userInput) {
+        System.out.println("Received userText: " + userInput.get("userText"));
+        System.out.println("Received language: " + userInput.get("language"));
+        
         HashMap<String, Object> spellingControl = new HashMap<>();
         String userText = userInput.get("userText");
         String specified_language = userInput.get("language");
