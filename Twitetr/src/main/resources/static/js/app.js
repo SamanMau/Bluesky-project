@@ -1,3 +1,4 @@
+// Initialize Quill.js editor
 const quill = new Quill('#editor', {
     theme: 'snow',
     placeholder: 'Write your post here...',
@@ -12,54 +13,128 @@ const quill = new Quill('#editor', {
     },
 });
 
+// Global variable for selected language
+let selectedLanguage = 'en'; // Default is English
+
+// Element references
 const charCounter = document.getElementById('char-counter');
 const submitButton = document.getElementById('submit-button');
 const loader = document.getElementById('loader');
-const previewContainer = document.getElementById('preview-container');
-const tweetPreview = document.getElementById('tweet-preview');
+const suggestionsContainer = document.querySelector('.suggestions');
 
 // Update character counter and enable/disable submit button
 quill.on('text-change', () => {
     const text = quill.getText().trim();
-    charCounter.textContent = `${text.length} / 280`;
-    submitButton.disabled = text.length === 0 || text.length > 280;
-
-    // Update preview
-    tweetPreview.innerHTML = quill.root.innerHTML;
-    previewContainer.classList.remove('hidden');
+    charCounter.textContent = `${text.length} / 500`;
+    submitButton.disabled = text.length === 0 || text === '\n' || text.length > 500;
 });
 
-submitButton.addEventListener('click', async (e) => {
-    e.preventDefault(); // Förhindra sidladdning
+// Helper function to check if text is valid
+function isTextValid(text) {
+    return text.trim().length > 0;
+}
 
-    const tweetContent = quill.getContents(); // Hämta rich text (Delta-format)
-    const plainText = quill.getText().trim(); // Hämta ren text
+// Handle Language Change
+document.querySelectorAll('.language-select button').forEach(button => {
+    button.addEventListener('click', (event) => {
+        selectedLanguage = event.target.textContent.trim().toLowerCase();
+        alert(`Language changed to: ${selectedLanguage === 'en' ? 'English' : 'Swedish'}`);
+    });
+});
 
-    if (plainText.length === 0 || plainText.length > 280) {
-        alert('Tweet must be between 1 and 280 characters.');
+// Validate text input before sending to backend
+function validateTextInput(text) {
+    console.log("Validating text input:", text); // Log text input for debugging
+    if (!text || text.trim().length === 0) {
+        alert('Please write something before checking spelling.');
+        return false;
+    }
+
+    if (text.length > 500) {
+        alert('The text exceeds the limit of 500 characters.');
+        return false;
+    }
+
+    return true;
+}
+
+// Handle Check Spelling
+document.querySelector('.check-spelling').addEventListener('click', () => {
+    const text = quill.getText().replace(/\n/g, '').trim(); // Remove newlines and trim whitespace
+    
+    console.log("Check spelling button clicked");
+    console.log("Text to send: ", text);
+
+    if (!validateTextInput(text)) {
         return;
     }
 
-    try {
-        // Skicka tweet som JSON till backend
-        const response = await fetch('api/tweets/test-manage-tweet', {
-            method: 'POST', // POST-begäran för att skicka data
-            headers: { 'Content-Type': 'application/json' }, // Skickar JSON-format
-            body: JSON.stringify({ content: plainText }), // JSON-struktur för tweet
-        });
+    fetch('http://localhost:8080/api/text/manage-text', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({userText: text, language: selectedLanguage || 'sv' }), //tillfälligt, att default är svenska //saman
+    })
+        .then(response => {
+            console.log("Fetch response:", response);
+            
+            if(!response.ok){
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
+            return response.json();
 
-        if (response.ok) {
-            const result = await response.json(); // Hämta JSON-svar från backend
-            alert(`Tweet saved: ${result.message}`); // Bekräfta sparad tweet
-            quill.setText(''); // Rensa editorn
-            charCounter.textContent = '0 / 280'; // Återställ räknaren
-        } else {
-            alert('Failed to post the tweet. Try again!');
-        }
-    } catch (error) {
-        console.error('Error posting tweet:', error);
-        alert('Something went wrong. Please try again!');
+        }).then(data => {
+            console.log("Response from backend: ", data);
+            if (data.before && data.after) {
+                alert('Spelling check complete!');
+                suggestionsContainer.innerHTML = `
+                    <h3>Before:</h3>
+                    <p>${data.before}</p>
+                    <h3>After:</h3>
+                    <p>${data.after}</p>
+                `;
+            } else if (data.invalid) {
+                alert(data.invalid);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('An error occurred while checking spelling.');
+        });
+});
+
+// Handle Submit Button
+submitButton.addEventListener('click', () => {
+    const text = quill.getText();
+
+    console.log("Text to publish:", text); // Log text to be published
+
+    if (!isTextValid(text)) { // Validate text
+        alert('Please write something before submitting.');
+        return;
     }
+
+    loader.style.display = 'block';
+
+    fetch('/api/text/post-text', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({userText: text.trim()}),
+    })
+        .then(response => response.text())
+        .then(message => {
+            loader.style.display = 'none';
+            alert(message);
+        })
+        .catch(error => {
+            loader.style.display = 'none';
+            console.error('Error while submitting text:', error);
+            alert('An error occurred while submitting your text.');
+        });
 });
 
 // FÖR INTEGRATIONEN FÖR BACKEND
