@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import java.util.HashMap;
 
 @RestController
-@CrossOrigin(origins = "http://127.0.0.1:5500")
+@CrossOrigin(origins = {"http://127.0.0.1:5500/", "http://localhost:5500", "http://localhost:3000"})
 @RequestMapping("/api/text")
 public class BlueSky_Controller {
 

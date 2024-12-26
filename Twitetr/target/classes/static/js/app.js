@@ -19,7 +19,7 @@ let selectedLanguage = 'en'; // Default is English
 // Element references
 const charCounter = document.getElementById('char-counter');
 const submitButton = document.getElementById('submit-button');
-const loader = document.getElementById('loader');
+// const loader = document.getElementById('loader');
 const suggestionsContainer = document.querySelector('.suggestions');
 
 // Update character counter and enable/disable submit button
@@ -118,7 +118,7 @@ submitButton.addEventListener('click', () => {
         return;
     }
 
-    loader.style.display = 'block';
+    // loader.style.display = 'block';
 
     fetch('http://localhost:8080/api/text/post-text', {
         method: 'POST',
@@ -129,11 +129,11 @@ submitButton.addEventListener('click', () => {
     })
         .then(response => response.text())
         .then(message => {
-            loader.style.display = 'none';
+            // loader.style.display = 'none';
             alert(message);
         })
         .catch(error => {
-            loader.style.display = 'none';
+            // loader.style.display = 'none';
             console.error('Error while submitting text:', error);
             alert('An error occurred while submitting your text.');
         });
@@ -169,10 +169,11 @@ submitButton.addEventListener('click', async (e) => {
             `;
             previewContainer.classList.remove('hidden');
         } else {
-            alert('Failed to process the tweet. Try again!');
+            // alert('Failed to process the tweet. Try again!');
+            alert('Error while submitting text:', error.message);
         }
     } catch (error) {
-        console.error('Error communicating with backend:', error);
-        alert('Something went wrong. Please try again!');
+        // console.error('Error communicating with backend:', error);
+        // alert('Something went wrong. Please try again!');
     }
 });
