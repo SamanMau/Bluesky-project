@@ -101,7 +101,9 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         })
         .catch(error => {
             console.error('Fetch error:', error);
-            alert('An error occurred while checking spelling.');
+            // alert('An error occurred while checking spelling.');
+            console.error('Error while submitting text:', error.message);
+            alert(`Error: ${error.message}`); // Visa backend-meddelandet i alert
         });
 });
 
@@ -118,7 +120,7 @@ submitButton.addEventListener('click', () => {
 
     loader.style.display = 'block';
 
-    fetch('/api/text/post-text', {
+    fetch('http://localhost:8080/api/text/post-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -135,4 +137,42 @@ submitButton.addEventListener('click', () => {
             console.error('Error while submitting text:', error);
             alert('An error occurred while submitting your text.');
         });
+});
+
+// FÖR INTEGRATIONEN FÖR BACKEND
+submitButton.addEventListener('click', async (e) => {
+    e.preventDefault(); // Förhindra sidladdning
+
+    const plainText = quill.getText().trim();
+
+    // Kontrollera att texten är mellan 1 och 280 tecken
+    if (plainText.length === 0 || plainText.length > 280) {
+        alert('Tweet must be between 1 and 280 characters.');
+        return;
+    }
+
+    try {
+        // Skicka text till backend och hämta svar
+        const response = await fetch('http://localhost:8080/api/text/manage-text', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tweet: plainText, language: 'svenska' })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+
+            // Visa resultatet i frontend
+            tweetPreview.innerHTML = `
+                <p><strong>LIBRIS suggestions:</strong> ${result['LIBRIS suggestions']}</p>
+                <p><strong>User original tweet:</strong> ${result['User original tweet']}</p>
+            `;
+            previewContainer.classList.remove('hidden');
+        } else {
+            alert('Failed to process the tweet. Try again!');
+        }
+    } catch (error) {
+        console.error('Error communicating with backend:', error);
+        alert('Something went wrong. Please try again!');
+    }
 });

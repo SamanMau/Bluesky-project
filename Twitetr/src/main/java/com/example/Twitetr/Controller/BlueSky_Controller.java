@@ -1,11 +1,14 @@
 package com.example.Twitetr.Controller;
 
 import com.example.Twitetr.Service.LibrisManager;
+import com.fasterxml.jackson.databind.ObjectMapper; // Required for JSON processing
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -48,37 +51,55 @@ public class BlueSky_Controller {
 
     // Endpoint to handle text validation and processing
     @PostMapping("/post-text")
-    public ResponseEntity<HashMap<String, Object>> postText(@RequestBody Map<String, String> userInput) {
+    public ResponseEntity<HashMap<String, Object>> postText(@RequestBody Map<String, String> userInput){
         String text = userInput.get("userText");
+        HashMap<String, Object> map = new HashMap<>();
+
 
         if (checkIfEmpty(text)) {
-            HashMap<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "The text does not exist. Please try again.");
-            return ResponseEntity.badRequest().body(errorResponse);
+            map.put("invalid", "Text is empty. Try again");
+            return ResponseEntity.badRequest().body(map);
         }
 
         if (textAboveLimit(text)) {
-            HashMap<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "The text exceeds the limit of 500 characters.");
-            return ResponseEntity.badRequest().body(errorResponse);
+            map.put("invalid", "The text exceeds 500 characters.");
+            return ResponseEntity.badRequest().body(map);
         }
 
         if (containsInvalidCharacters(text)) {
-            HashMap<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Error: The text contains forbidden characters.");
-            return ResponseEntity.badRequest().body(errorResponse);
+            map.put("invalid", "Error: The text contains forbidden characters.");
+            return ResponseEntity.badRequest().body(map);
         }
 
-      HashMap<String, Object> apiResponse = mockBlueSkyAPI(text);
-
-        if ("success".equals(apiResponse.get("status"))) {
-            return ResponseEntity.ok(apiResponse);
-        } else {
-            HashMap<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Unable to process the text with BlueSky API.");
+        try{
+            createJSONFile(text);
+        } catch (Exception e){
+            map.put("error", "Could not create JSON file: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(errorResponse);
+                .body(map);
         }
+
+        map = mockBlueSkyAPI(text);
+
+        if ("success".equals(map.get("status"))) {
+            return ResponseEntity.ok(map);
+        } else {
+            map.put("error", "Can't process the text with BlueSky API.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(map);
+        }
+    }
+
+    public void createJSONFile(String text) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        File file = new File("userText.json");
+
+        // förbereder datan i hashmap format
+        Map<String, String> data = new HashMap<>();
+        data.put("userText", text);
+
+        // skriver data till JSON filen.
+        objectMapper.writeValue(file, data);
     }
 
 

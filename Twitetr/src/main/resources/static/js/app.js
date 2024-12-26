@@ -101,7 +101,9 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         })
         .catch(error => {
             console.error('Fetch error:', error);
-            alert('An error occurred while checking spelling.');
+            // alert('An error occurred while checking spelling.');
+            console.error('Error while submitting text:', error.message);
+            alert(`Error: ${error.message}`); // Visa backend-meddelandet i alert
         });
 });
 
@@ -118,7 +120,7 @@ submitButton.addEventListener('click', () => {
 
     loader.style.display = 'block';
 
-    fetch('/api/text/post-text', {
+    fetch('http://localhost:8080/api/text/post-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -151,7 +153,7 @@ submitButton.addEventListener('click', async (e) => {
 
     try {
         // Skicka text till backend och hämta svar
-        const response = await fetch('/api/tweets/manage-tweet', {
+        const response = await fetch('http://localhost:8080/api/text/manage-text', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tweet: plainText, language: 'svenska' })
