@@ -1,18 +1,23 @@
 package com.example.Twitetr.Controller;
 
-import com.example.Twitetr.Service.LibrisManager;
-import com.fasterxml.jackson.databind.ObjectMapper; // Required for JSON processing
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.HashMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.Twitetr.Service.LibrisManager;
+import com.fasterxml.jackson.databind.ObjectMapper; // Required for JSON processing
 
 @RestController
 @CrossOrigin(origins = "http://127.0.0.1:5500/")
@@ -105,12 +110,13 @@ public class BlueSky_Controller {
 
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody HashMap<String, String> userInput) {
-        System.out.println("Received userText: " + userInput.get("userText"));
-        System.out.println("Received language: " + userInput.get("language"));
-        
         HashMap<String, Object> spellingControl = new HashMap<>();
         String userText = userInput.get("userText");
         String specified_language = userInput.get("language");
+        System.out.println("Received userText: " + userInput.get("userText"));
+        System.out.println("Received language: " + userInput.get("language"));
+        
+        
 
 
         if(checkIfEmpty(userText)){

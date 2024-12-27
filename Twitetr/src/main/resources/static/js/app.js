@@ -61,7 +61,7 @@ function validateTextInput(text) {
 // Handle Check Spelling
 document.querySelector('.check-spelling').addEventListener('click', () => {
     const text = quill.getText().replace(/\n/g, '').trim(); // Remove newlines and trim whitespace
-    
+
     console.log("Check spelling button clicked");
     console.log("Text to send: ", text);
 
@@ -74,15 +74,16 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({userText: text, language: selectedLanguage || 'sv' }), //tillfälligt, att default är svenska //saman
+        body: JSON.stringify({ userText: text, language: selectedLanguage || 'sv' }), //tillfälligt, att default är svenska //saman
+        // alert('debugging: ', userText);
     })
         .then(response => {
             console.log("Fetch response:", response);
-            
-            if(!response.ok){
+
+            if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            
+
             return response.json();
 
         }).then(data => {
@@ -109,7 +110,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
 
 // Handle Submit Button
 submitButton.addEventListener('click', () => {
-    const text = quill.getText();
+    const text = quill.getText().trim();
 
     console.log("Text to publish:", text); // Log text to be published
 
@@ -120,20 +121,26 @@ submitButton.addEventListener('click', () => {
 
     // loader.style.display = 'block';
 
+    // console.log("Debugging:", userText);
     fetch('http://127.0.0.1:8080/api/text/post-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({userText: text.trim()}),
+        body: JSON.stringify({ userText: text }),
     })
-        .then(response => response.text())
+        .then(response => {
+            console.log("Fetch response:", response)
+            if (!response.ok) {
+                throw new Error('HTTP error! Status: ${response.status}');
+            }
+            return response.json(); // Om svaret är JSON, parsar det.
+        })
         .then(message => {
-            // loader.style.display = 'none';
-            alert(message);
+            console.log("Response from backend:", message);
+            alert('Text successfully published!');
         })
         .catch(error => {
-            // loader.style.display = 'none';
             console.error('Error while submitting text:', error);
             alert('An error occurred while submitting your text.');
         });
