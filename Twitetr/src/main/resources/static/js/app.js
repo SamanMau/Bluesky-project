@@ -113,6 +113,7 @@ submitButton.addEventListener('click', () => {
     const text = quill.getText().trim();
 
     console.log("Text to publish:", text); // Log text to be published
+    console.log("Selected language:", selectedLanguage) // debugging the selected language
 
     if (!isTextValid(text)) { // Validate text
         alert('Please write something before submitting.');
@@ -127,7 +128,7 @@ submitButton.addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userText: text }),
+        body: JSON.stringify({ userText: text, language: selectedLanguage }),
     })
         .then(response => {
             console.log("Fetch response:", response)
@@ -162,8 +163,10 @@ submitButton.addEventListener('click', async (e) => {
         // Skicka text till backend och hämta svar
         const response = await fetch('http://127.0.0.1:8080/api/text/manage-text', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tweet: plainText, language: 'svenska' })
+            headers: { 
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userText: plainText, language: 'svenska' })
         });
 
         if (response.ok) {

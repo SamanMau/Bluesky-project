@@ -128,6 +128,11 @@ public class BlueSky_Controller {
             spellingControl.put("invalid", "No language has been specified");
             return ResponseEntity.badRequest().body(spellingControl);
         }
+
+        if (!specified_language.equals("en") && !specified_language.equals("sv")) {
+            spellingControl.put("invalid", "Unsupported language specified. Use 'en' or 'sv'.");
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
     
         if (containsInvalidCharacters(userText)) {
             spellingControl.put("invalid", "Text contains invalid characters.");
