@@ -31,15 +31,15 @@ public class LibrisManager {
      * @param specified_language Den språkvariant som användaren specificerat för stavningskontrollen.
      * @return En HashMap som innehåller resultatet av stavningskontrollen.
      */
-    public HashMap<String, Object> checkSpelling(String userInput, String specified_language) {
+    public HashMap<String, String> checkSpelling(String userInput) {
         RestTemplate restTemplate = new RestTemplate();
-        HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, String> responseMap = new HashMap<>();
         String key = getKey();
         String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), key);
+        String correctedWord = "";
     
         System.out.println("LIBRIS API URL: " + URL);
         System.out.println("Användarinmatning: " + userInput);
-        System.out.println("Specificerat språk: " + specified_language);
     
         try {
             // Skicka GET-förfrågan till API:t
@@ -50,7 +50,7 @@ public class LibrisManager {
     
             if (result != null) {
                 // Extrahera det korrigerade ordet från XML-svaret
-                String correctedWord = extractCorrectedWordFromXML(result);
+                correctedWord = extractCorrectedWordFromXML(result);
                 if (correctedWord != null) {
                     String message = "Här är det korrigerade ordet: " + correctedWord;
                     System.out.println(message); // Skriv ut meddelandet till terminalen
@@ -60,12 +60,16 @@ public class LibrisManager {
             } else {
                 System.out.println("LIBRIS returnerade ett tomt svar."); // Skriv ut felmeddelande om inget svar mottogs
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("LIBRIS API-fel: " + e.getMessage()); // Skriv ut felmeddelande vid API-fel
         }
+
+        responseMap.put("before", userInput);
+        responseMap.put("after", correctedWord);
     
-        return map;
+        return responseMap;
     }
 
     /**

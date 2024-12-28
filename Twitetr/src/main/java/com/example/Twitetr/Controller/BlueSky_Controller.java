@@ -109,8 +109,8 @@ public class BlueSky_Controller {
 
 
     @PostMapping("/manage-text")
-    public ResponseEntity<HashMap<String, Object>> manageText(@RequestBody HashMap<String, String> userInput) {
-        HashMap<String, Object> spellingControl = new HashMap<>();
+    public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
+        HashMap<String, String> spellingControl = new HashMap<>();
         String userText = userInput.get("userText");
         String specified_language = userInput.get("language");
         System.out.println("Received userText: " + userInput.get("userText"));
@@ -139,12 +139,13 @@ public class BlueSky_Controller {
             return ResponseEntity.badRequest().body(spellingControl);
         }
 
-        HashMap<String, Object> librisResponse = libris.checkSpelling(userText, specified_language);
+        HashMap<String, String> librisResponse = libris.checkSpelling(userText);
 
         if (librisResponse.containsKey("invalid")) {
             return ResponseEntity.badRequest().body(librisResponse);
         }
 
+        /* 
         Map<String, String> spellingCorrection = suggestedGrammar(librisResponse);
     
         String correctedText = String.join(" ", spellingCorrection.values());
@@ -152,13 +153,15 @@ public class BlueSky_Controller {
         spellingControl.put("before", userText);
         spellingControl.put("after", correctedText);
         spellingControl.put("suggestions", spellingCorrection);
+        */
     
-        return ResponseEntity.ok(spellingControl);
+        return ResponseEntity.ok(librisResponse);
 
         
     }
 
-    public Map<String, String> suggestedGrammar(Map<String, Object> librisResponse){
+    /*
+    public Map<String, String> suggestedGrammar(Map<String, String> librisResponse){
         Map<String, String> spellingCorrection = new HashMap<>();
 
         ArrayList<Map<String, Object>> spellingSuggestions = new ArrayList<>();
@@ -180,5 +183,6 @@ public class BlueSky_Controller {
 
         return spellingCorrection;
     }
+        */
 
 }
