@@ -23,47 +23,57 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class LibrisManager {
     private static final String LIBRIS_API_URL = "http://api.libris.kb.se/bibspell/spell?query=%s&key=%s";
 
-    public LibrisManager(){
-
-    }
-
+    /**
+     * Skickar en förfrågan till LIBRIS API för att kontrollera stavningen av ett användarinmatat ord
+     * och returnerar ett resultat i form av en HashMap.
+     *
+     * @param userInput          Användarens inmatade text som ska kontrolleras för stavfel.
+     * @param specified_language Den språkvariant som användaren specificerat för stavningskontrollen.
+     * @return En HashMap som innehåller resultatet av stavningskontrollen.
+     */
     public HashMap<String, Object> checkSpelling(String userInput, String specified_language) {
         RestTemplate restTemplate = new RestTemplate();
-        
         HashMap<String, Object> map = new HashMap<>();
         String key = getKey();
         String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), key);
-        
+    
         System.out.println("LIBRIS API URL: " + URL);
-        System.out.println("User input: " + userInput);
-        System.out.println("Specified language: " + specified_language);
-
+        System.out.println("Användarinmatning: " + userInput);
+        System.out.println("Specificerat språk: " + specified_language);
+    
         try {
-            // get förfrågan skickas
+            // Skicka GET-förfrågan till API:t
             ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);
-            
             String result = response.getBody();
-
-            System.out.println("LIBRIS API Response: " + result);
     
-            System.out.println("HTTP Status Code: " + result);
+            System.out.println("LIBRIS API svar: " + result);
     
-            if(result != null){
-                XmlMapper xml = new XmlMapper();
-                map = xml.readValue(result, HashMap.class);
+            if (result != null) {
+                // Extrahera det korrigerade ordet från XML-svaret
+                String correctedWord = extractCorrectedWordFromXML(result);
+                if (correctedWord != null) {
+                    String message = "Här är det korrigerade ordet: " + correctedWord;
+                    System.out.println(message); // Skriv ut meddelandet till terminalen
+                } else {
+                    System.out.println("Inga korrigeringar hittades för inmatningen."); // Skriv ut meddelande om ingen korrigering hittades
+                }
             } else {
-                map.put("Invalid", "LIBRIS returned an empty response");
+                System.out.println("LIBRIS returnerade ett tomt svar."); // Skriv ut felmeddelande om inget svar mottogs
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-            map.put("invalid", "LIBRIS API-fel: " + e.getMessage());
+            System.out.println("LIBRIS API-fel: " + e.getMessage()); // Skriv ut felmeddelande vid API-fel
         }
-        
+    
         return map;
     }
 
-    public String getKey(){
+    /**
+     * Hämtar API-nyckeln från en .env-fil som lagrar känslig information.
+     *
+     * @return API-nyckeln som behövs för att göra förfrågningar till LIBRIS API.
+     */
+    public String getKey() {
         Dotenv dotenv = Dotenv.configure()
                 .directory(System.getProperty("user.dir"))
                 .filename(".env")
@@ -73,4 +83,33 @@ public class LibrisManager {
         return key;
     }
 
+    /**
+     * Extraherar det korrigerade ordet från XML-svaret från LIBRIS API.
+     * 
+     * @param xmlResponse XML-svaret som returneras från LIBRIS API.
+     * @return Det korrigerade ordet om det finns, annars null.
+     */
+    private String extractCorrectedWordFromXML(String xmlResponse) {
+        try {
+            // Parsar XML-svaret med hjälp av DocumentBuilder
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            var builder = factory.newDocumentBuilder();
+            var document = builder.parse(new java.io.ByteArrayInputStream(xmlResponse.getBytes(StandardCharsets.UTF_8)));
+    
+            // Hämta alla <term>-element från XML-dokumentet
+            var termNodes = document.getElementsByTagName("term");
+            for (int i = 0; i < termNodes.getLength(); i++) {
+                var termElement = (org.w3c.dom.Element) termNodes.item(i);
+                
+                // Kontrollera om attributet 'changed' är 'true'
+                String changedAttr = termElement.getAttribute("changed");
+                if ("true".equals(changedAttr)) {
+                    return termElement.getTextContent(); // Returnera det korrigerade ordet
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null; // Returnera null om inget korrigerat ord hittas
+    }   
 }
