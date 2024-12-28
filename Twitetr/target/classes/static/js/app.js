@@ -87,17 +87,27 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
             return response.json();
 
         }).then(data => {
-            console.log("Response from backend: ", data);
+            console.log("Response from /manage-text: ", data);
             if (data.before && data.after) {
-                alert('Spelling check complete!');
+                // alert('Spelling check complete!');
                 suggestionsContainer.innerHTML = `
                     <h3>Before:</h3>
                     <p>${data.before}</p>
                     <h3>After:</h3>
-                    <p>${data.after}</p>
+                    <p class="clickable-suggestion" style="cursor: pointer; color: black; text-decoration: none;">${data.after}</p>
                 `;
+                const suggestionElement = document.querySelector('.clickable-suggestion');
+                suggestionElement.addEventListener('click', () => {
+                    quill.setText(data.after); // Update editor with corrected text
+                    alert(`Text updated to: ${data.after}`);
+                });
             } else if (data.invalid) {
-                alert(data.invalid);
+                suggestionsContainer.innerHTML = `<h3>Error:</h3><p>${data.invalid}</p>`;
+            } else {
+                suggestionsContainer.innerHTML = `
+                    <h3>No Corrections Found:</h3>
+                    <p>The text might already be correct.</p>
+                `;
             }
         })
         .catch(error => {
@@ -131,7 +141,7 @@ submitButton.addEventListener('click', () => {
         body: JSON.stringify({ userText: text, language: selectedLanguage }),
     })
         .then(response => {
-            console.log("Fetch response:", response)
+            console.log("Response object:", response)
             if (!response.ok) {
                 throw new Error('HTTP error! Status: ${response.status}');
             }
