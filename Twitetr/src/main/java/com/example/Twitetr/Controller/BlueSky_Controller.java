@@ -110,7 +110,7 @@ public class BlueSky_Controller {
 
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
-       // HashMap<String, String> spellingControl = new HashMap<>();
+      
        HashMap<String, String> response = new HashMap<>();
         String userText = userInput.get("userText");
         String specified_language = userInput.get("language");
@@ -122,46 +122,12 @@ public class BlueSky_Controller {
             return ResponseEntity.badRequest().body(response);
         }
         
-
-
-
-/* 
-        if(checkIfEmpty(userText)){
-            spellingControl.put("invalid", "The text is empty");
-            return ResponseEntity.badRequest().body(spellingControl);
-        }
-
-        if(checkIfEmpty(specified_language)){
-            spellingControl.put("invalid", "No language has been specified");
-            return ResponseEntity.badRequest().body(spellingControl);
-        }
-
-        if (!specified_language.equals("en") && !specified_language.equals("sv")) {
-            spellingControl.put("invalid", "Unsupported language specified. Use 'en' or 'sv'.");
-            return ResponseEntity.badRequest().body(spellingControl);
-        }
-    
-        if (containsInvalidCharacters(userText)) {
-            spellingControl.put("invalid", "Text contains invalid characters.");
-            return ResponseEntity.badRequest().body(spellingControl);
-        } */
-
         HashMap<String, String> librisResponse = libris.checkSpelling(userText);
 
         if (librisResponse.containsKey("invalid")) {
             return ResponseEntity.badRequest().body(librisResponse);
         }
 
-        /* 
-        Map<String, String> spellingCorrection = suggestedGrammar(librisResponse);
-    
-        String correctedText = String.join(" ", spellingCorrection.values());
-
-        spellingControl.put("before", userText);
-        spellingControl.put("after", correctedText);
-        spellingControl.put("suggestions", spellingCorrection);
-    
-        */
 
         String correctedText = correctedSentence(userText, librisResponse);
 
@@ -195,6 +161,7 @@ public class BlueSky_Controller {
             return false;
         }
         return true;
+
     }
 
     private String correctedSentence(String userText, Map<String, String> corrections) {
@@ -207,30 +174,5 @@ public class BlueSky_Controller {
         }
         return correctedText.toString().trim();
     }
-
-    /*
-    public Map<String, String> suggestedGrammar(Map<String, String> librisResponse){
-        Map<String, String> spellingCorrection = new HashMap<>();
-
-        ArrayList<Map<String, Object>> spellingSuggestions = new ArrayList<>();
-
-        if(librisResponse.get("suggestions") instanceof ArrayList){
-            spellingSuggestions = (ArrayList<Map<String, Object>>) librisResponse.get("suggestions");
-        }
-
-        for(Map<String, Object> spellings : spellingSuggestions){
-            String before = (String) spellings.get("word");
-            String after = (String) spellings.get("suggestion");
-
-            if(after == null){
-                after = before;
-            }
-
-            spellingCorrection.put(before, after);
-        }
-
-        return spellingCorrection;
-    }
-        */
 
 }
