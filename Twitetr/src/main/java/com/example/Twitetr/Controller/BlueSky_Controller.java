@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.coyote.AbstractProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.Twitetr.Service.LibrisManager;
 import com.fasterxml.jackson.databind.ObjectMapper; // Required for JSON processing
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @RestController
 @CrossOrigin(origins = "http://127.0.0.1:5500/")
@@ -84,15 +87,21 @@ public class BlueSky_Controller {
                 .body(map);
         }
 
-        map = mockBlueSkyAPI(text);
+        ApiAuthentication apiAuthentication = new ApiAuthentication();
 
-        if ("success".equals(map.get("status"))) {
-            return ResponseEntity.ok(map);
-        } else {
+        boolean success = apiAuthentication.manageJWT(text);
+
+        if(success){
+            map.put("status", "success");
+            map.put("message", "Text received by BlueSky API");
+            map.put("receivedText", text);
+        } else{
             map.put("error", "Can't process the text with BlueSky API.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(map);
         }
+
+        return ResponseEntity.ok(map);
     }
 
     public void createJSONFile(String text) throws IOException {
@@ -117,9 +126,9 @@ public class BlueSky_Controller {
         System.out.println("Received userText: " + userInput.get("userText"));
         System.out.println("Received language: " + userInput.get("language"));
         
-        
-        if (!validateInput(userText, specified_language, response)) {
-            return ResponseEntity.badRequest().body(response);
+        if(checkIfEmpty(userText)){
+            spellingControl.put("invalid", "The text is empty");
+            return ResponseEntity.badRequest().body(spellingControl);
         }
         
         HashMap<String, String> librisResponse = libris.checkSpelling(userText);
@@ -127,52 +136,10 @@ public class BlueSky_Controller {
         if (librisResponse.containsKey("invalid")) {
             return ResponseEntity.badRequest().body(librisResponse);
         }
-
-
-        String correctedText = correctedSentence(userText, librisResponse);
-
-        response.put("originalText", userText);
-        response.put("correctedText", correctedText);
-        response.putAll(librisResponse);
     
         return ResponseEntity.ok(response);
 
         
-    }
-
-    private boolean validateInput(String userText, String language, HashMap<String, String> response) {
-        if (checkIfEmpty(userText)) {
-            response.put("invalid", "The text is empty");
-            return false;
-        }
-
-        if (checkIfEmpty(language)) {
-            response.put("invalid", "No language has been specified");
-            return false;
-        }
-
-        if (!language.equals("en") && !language.equals("sv")) {
-            response.put("invalid", "Unsupported language specified. Use 'en' or 'sv'.");
-            return false;
-        }
-
-        if (containsInvalidCharacters(userText)) {
-            response.put("invalid", "The text contains invalid characters.");
-            return false;
-        }
-        return true;
-
-    }
-
-    private String correctedSentence(String userText, Map<String, String> corrections) {
-        String[] words = userText.split(" "); 
-        StringBuilder correctedText = new StringBuilder();
-
-        for (String word: words) {
-            String correctedWord = corrections.getOrDefault(word, word);
-            correctedText.append(correctedWord).append(" ");
-        }
-        return correctedText.toString().trim();
     }
 
 }
