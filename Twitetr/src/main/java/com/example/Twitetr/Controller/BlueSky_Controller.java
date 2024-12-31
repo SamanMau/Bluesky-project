@@ -119,8 +119,7 @@ public class BlueSky_Controller {
 
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
-      
-       HashMap<String, String> response = new HashMap<>();
+        HashMap<String, String> spellingControl = new HashMap<>();
         String userText = userInput.get("userText");
         String specified_language = userInput.get("language");
         System.out.println("Received userText: " + userInput.get("userText"));
@@ -130,14 +129,29 @@ public class BlueSky_Controller {
             spellingControl.put("invalid", "The text is empty");
             return ResponseEntity.badRequest().body(spellingControl);
         }
-        
+
+        if(checkIfEmpty(specified_language)){
+            spellingControl.put("invalid", "No language has been specified");
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
+
+        if (!specified_language.equals("en") && !specified_language.equals("sv")) {
+            spellingControl.put("invalid", "Unsupported language specified. Use 'en' or 'sv'.");
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
+    
+        if (containsInvalidCharacters(userText)) {
+            spellingControl.put("invalid", "Text contains invalid characters.");
+            return ResponseEntity.badRequest().body(spellingControl);
+        }
+
         HashMap<String, String> librisResponse = libris.checkSpelling(userText);
 
         if (librisResponse.containsKey("invalid")) {
             return ResponseEntity.badRequest().body(librisResponse);
         }
     
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(librisResponse);
 
         
     }
