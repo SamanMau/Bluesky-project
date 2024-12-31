@@ -163,5 +163,64 @@ public class ApiAuthentication {
     return null;
 }
 
+
+    //skickar en post förfrågan till API:t
+    public boolean createPost(String accessJwt, String sessionDid, String text) {
+        try {
+   
+           URL url = new URL("https://bsky.social/xrpc/com.atproto.repo.createRecord");
+           HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+           httpConnection.setRequestMethod("POST");
+           httpConnection.setRequestProperty("Content-Type", "application/json");
+           httpConnection.setRequestProperty("Authorization", "Bearer " + accessJwt);
+           httpConnection.setDoOutput(true);
+   
+           String jsonInput = getJsonInput(text, sessionDid);
+   
+           try{
+               var outStream = httpConnection.getOutputStream();
+               OutputStream os = outStream;
+               os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
+           } catch(IOException e){
+               e.printStackTrace();
+           }
+   
+           // läser API-svaret och hämtar statuskod.
+           int responseCode = httpConnection.getResponseCode();
+           InputStream streamResponse;
+   
+           if(responseCode == 200){
+               streamResponse = httpConnection.getInputStream();
+               return true;
+           } else{
+               streamResponse = httpConnection.getErrorStream();
+               return false;
+           }
+   
+   
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+   
+       return false;
+   }
+   
+       public String getJsonInput(String text, String sessionDid){
+                   // Skapa tidsstämpel och JSON-body
+           String createdAt = Instant.now().toString();
+           
+           String jsonInput = "{\n" +
+                           "  \"repo\": \"" + sessionDid + "\",\n" +
+                           "  \"collection\": \"app.bsky.feed.post\",\n" +
+                           "  \"record\": {\n" +
+                           "    \"$type\": \"app.bsky.feed.post\",\n" +
+                           "    \"text\": \"" + text + "\",\n" +
+                           "    \"createdAt\": \"" + createdAt + "\"\n" +
+                           "  }\n" +
+                           "}";
+   
+           return jsonInput;                
+       }
+
         
 }
