@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.coyote.AbstractProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.Twitetr.Service.LibrisManager;
 import com.fasterxml.jackson.databind.ObjectMapper; // Required for JSON processing
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @RestController
 @CrossOrigin(origins = "http://127.0.0.1:5500/")
@@ -84,15 +87,21 @@ public class BlueSky_Controller {
                 .body(map);
         }
 
-        map = mockBlueSkyAPI(text);
+        ApiAuthentication apiAuthentication = new ApiAuthentication();
 
-        if ("success".equals(map.get("status"))) {
-            return ResponseEntity.ok(map);
-        } else {
+        boolean success = apiAuthentication.manageJWT(text);
+
+        if(success){
+            map.put("status", "success");
+            map.put("message", "Text received by BlueSky API");
+            map.put("receivedText", text);
+        } else{
             map.put("error", "Can't process the text with BlueSky API.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(map);
         }
+
+        return ResponseEntity.ok(map);
     }
 
     public void createJSONFile(String text) throws IOException {
@@ -116,9 +125,6 @@ public class BlueSky_Controller {
         System.out.println("Received userText: " + userInput.get("userText"));
         System.out.println("Received language: " + userInput.get("language"));
         
-        
-
-
         if(checkIfEmpty(userText)){
             spellingControl.put("invalid", "The text is empty");
             return ResponseEntity.badRequest().body(spellingControl);
@@ -144,45 +150,10 @@ public class BlueSky_Controller {
         if (librisResponse.containsKey("invalid")) {
             return ResponseEntity.badRequest().body(librisResponse);
         }
-
-        /* 
-        Map<String, String> spellingCorrection = suggestedGrammar(librisResponse);
-    
-        String correctedText = String.join(" ", spellingCorrection.values());
-
-        spellingControl.put("before", userText);
-        spellingControl.put("after", correctedText);
-        spellingControl.put("suggestions", spellingCorrection);
-        */
     
         return ResponseEntity.ok(librisResponse);
 
         
     }
-
-    /*
-    public Map<String, String> suggestedGrammar(Map<String, String> librisResponse){
-        Map<String, String> spellingCorrection = new HashMap<>();
-
-        ArrayList<Map<String, Object>> spellingSuggestions = new ArrayList<>();
-
-        if(librisResponse.get("suggestions") instanceof ArrayList){
-            spellingSuggestions = (ArrayList<Map<String, Object>>) librisResponse.get("suggestions");
-        }
-
-        for(Map<String, Object> spellings : spellingSuggestions){
-            String before = (String) spellings.get("word");
-            String after = (String) spellings.get("suggestion");
-
-            if(after == null){
-                after = before;
-            }
-
-            spellingCorrection.put(before, after);
-        }
-
-        return spellingCorrection;
-    }
-        */
 
 }
