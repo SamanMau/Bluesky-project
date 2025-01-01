@@ -138,14 +138,13 @@ public class BlueSky_Controller {
       for (String word : words) {
         HashMap<String, String> wordResponse = libris.checkSpelling(word.trim());
 
-        if (wordResponse.containsKey("invalid")) {
-            corrections.put(word, word);
-            correctedText.append(word).append(" ");
-    
-        } else {
+        if (!wordResponse.containsKey("invalid")) {
             String correctedWord = wordResponse.getOrDefault("suggestions", word);
             corrections.put(word, correctedWord);
-            correctedText.append(correctedWord).append("");
+            System.out.println("CORRECTED WORD: " + correctedWord);
+            correctedText.append(correctedWord).append(" ");
+            System.out.println("CORRECTED TEEEEXXTTTT:" + correctedText.toString());
+    
         }
       }
 
