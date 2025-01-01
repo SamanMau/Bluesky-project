@@ -55,29 +55,6 @@ textarea {
     background-color: #2e477a;
 }
 
-.language-select {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.language-select button {
-    flex: 1;
-    margin: 0 5px;
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 8px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.language-select button:hover {
-    background-color: #3b5998;
-    color: #fff;
-}
-
 .suggestions {
     margin-top: 20px;
     padding: 10px;

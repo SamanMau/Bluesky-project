@@ -13,9 +13,6 @@ const quill = new Quill('#editor', {
     },
 });
 
-// Global variable for selected language
-let selectedLanguage = 'en'; // Default is English
-
 // Element references
 const charCounter = document.getElementById('char-counter');
 const submitButton = document.getElementById('submit-button');
@@ -33,14 +30,6 @@ quill.on('text-change', () => {
 function isTextValid(text) {
     return text.trim().length > 0;
 }
-
-// Handle Language Change
-document.querySelectorAll('.language-select button').forEach(button => {
-    button.addEventListener('click', (event) => {
-        selectedLanguage = event.target.textContent.trim().toLowerCase();
-        alert(`Language changed to: ${selectedLanguage === 'en' ? 'English' : 'Swedish'}`);
-    });
-});
 
 // Validate text input before sending to backend
 function validateTextInput(text) {
@@ -74,8 +63,8 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userText: text, language: selectedLanguage || 'sv' }), //tillfälligt, att default är svenska //saman
-        // alert('debugging: ', userText);
+        // default language is Swedish
+        body: JSON.stringify({ userText: text, language: 'sv' }),
     })
         .then(response => {
             console.log("Fetch response:", response);
@@ -118,44 +107,46 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         });
 });
 
+
 // Handle Submit Button
 submitButton.addEventListener('click', () => {
     const text = quill.getText().trim();
 
-    console.log("Text to publish:", text); // Log text to be published
-    console.log("Selected language:", selectedLanguage) // debugging the selected language
-
-    if (!isTextValid(text)) { // Validate text
+    if (!isTextValid(text)) {
         alert('Please write something before submitting.');
         return;
     }
 
-    // loader.style.display = 'block';
-
-    // console.log("Debugging:", userText);
     fetch('http://127.0.0.1:8080/api/text/post-text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userText: text, language: selectedLanguage }),
+        body: JSON.stringify({ userText: text, language: 'sv' }),
     })
         .then(response => {
-            console.log("Response object:", response)
             if (!response.ok) {
-                throw new Error('HTTP error! Status: ${response.status}');
+                console.error(`Publish Error: ${response.status} - ${response.statusText}`);
+                throw new Error(`Failed to publish: ${response.status}`);
             }
-            return response.json(); // Om svaret är JSON, parsar det.
+            return response.json();
         })
-        .then(message => {
-            console.log("Response from backend:", message);
-            alert('Text successfully published!');
+        .then(data => {
+            if (data.success) {
+                alert('Text successfully published!');
+            } else if (data.error) {
+                alert(`Failed to publish: ${data.error}`);
+            } else {
+                alert('Unknown response from server.');
+            }
         })
         .catch(error => {
-            console.error('Error while submitting text:', error);
-            alert('An error occurred while submitting your text.');
+            console.error('Error during publishing:', error.message);
+            alert('An error occurred. Please try again later.');
         });
 });
+
+
 
 // FÖR INTEGRATIONEN FÖR BACKEND
 submitButton.addEventListener('click', async (e) => {
@@ -173,10 +164,10 @@ submitButton.addEventListener('click', async (e) => {
         // Skicka text till backend och hämta svar
         const response = await fetch('http://127.0.0.1:8080/api/text/manage-text', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userText: plainText, language: 'svenska' })
+            body: JSON.stringify({ userText: plainText, language: 'sv' })
         });
 
         if (response.ok) {
