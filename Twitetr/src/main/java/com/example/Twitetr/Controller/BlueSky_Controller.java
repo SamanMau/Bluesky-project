@@ -116,7 +116,6 @@ public class BlueSky_Controller {
         objectMapper.writeValue(file, data);
     }
 
-
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
 
@@ -124,9 +123,7 @@ public class BlueSky_Controller {
         String userText = userInput.get("userText");
         String specified_language = userInput.get("language");
         System.out.println("Received userText: " + userInput.get("userText"));
-        System.out.println("Received language: " + userInput.get("language"));
-        
-        
+                
         if (!validateInput(userText, specified_language, response)) {
             return ResponseEntity.badRequest().body(response);
         }
