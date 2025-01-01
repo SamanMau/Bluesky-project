@@ -132,27 +132,26 @@ public class BlueSky_Controller {
       StringBuilder correctedText = new StringBuilder();
       HashMap<String, String> corrections = new HashMap<>();
 
-      for (String word : words) {
+      for(String word : words){
         HashMap<String, String> wordResponse = libris.checkSpelling(word.trim());
+        String correctedWord = wordResponse.get("after");
+      //  response.putAll(wordResponse);
 
-        if (!wordResponse.containsKey("invalid")) {
-            String correctedWord = wordResponse.getOrDefault("suggestions", word);
-            corrections.put(word, correctedWord);
-            System.out.println("CORRECTED WORD: " + correctedWord);
-            correctedText.append(correctedWord).append(" ");
-            System.out.println("CORRECTED TEEEEXXTTTT:" + correctedText.toString());
-    
+        if(correctedWord == null){
+            correctedWord = wordResponse.get("before");
         }
+
+        correctedText.append(correctedWord).append(" ");
+
       }
 
         response.put("originalText", userText);
-        response.put("correctedText", correctedText.length() > 0 ? correctedText.toString().trim() : "No corrections found.");
+        response.put("correctedText", correctedText.toString());
 
-
-        for (Map.Entry<String, String> entry : corrections.entrySet()) {
-            response.put(entry.getKey(), entry.getValue());
+        for(String value : response.values()){
+            System.out.println(value + " ");
         }
-   
+
         return ResponseEntity.ok(response);
  
     }
