@@ -131,22 +131,34 @@ public class BlueSky_Controller {
             return ResponseEntity.badRequest().body(response);
         }
 
-        HashMap<String, String> librisResponse = libris.checkSpelling(userText);
+      String[] words = userText.split(" ");
+      StringBuilder correctedText = new StringBuilder();
+      HashMap<String, String> corrections = new HashMap<>();
 
-        if (librisResponse.containsKey("invalid")) {
-            return ResponseEntity.badRequest().body(librisResponse);
+      for (String word : words) {
+        HashMap<String, String> wordResponse = libris.checkSpelling(word.trim());
+
+        if (wordResponse.containsKey("invalid")) {
+            corrections.put(word, word);
+            correctedText.append(word).append(" ");
+    
+        } else {
+            String correctedWord = wordResponse.getOrDefault("suggestions", word);
+            corrections.put(word, correctedWord);
+            correctedText.append(correctedWord).append("");
         }
-        
-        String correctedText = correctedSentence(userText, librisResponse);
+      }
 
         response.put("originalText", userText);
-        response.put("correctedText", correctedText);
-        response.putAll(librisResponse);
-    
-        
-        return ResponseEntity.ok(response);
+        response.put("correctedText", correctedText.length() > 0 ? correctedText.toString().trim() : "No corrections found.");
 
-        
+
+        for (Map.Entry<String, String> entry : corrections.entrySet()) {
+            response.put(entry.getKey(), entry.getValue());
+        }
+   
+        return ResponseEntity.ok(response);
+ 
     }
 
     private boolean validateInput(String userText, String language, HashMap<String, String> response) {
@@ -172,15 +184,27 @@ public class BlueSky_Controller {
         return true;
     }
 
-    private String correctedSentence(String userText, Map<String, String> corrections) {
+  /*   private String correctedSentence(String userText, HashMap<String, String> corrections) {
         String[] words = userText.split(" "); 
         StringBuilder correctedText = new StringBuilder();
 
         for (String word: words) {
-            String correctedWord = corrections.getOrDefault(word, word);
+            HashMap<String, String> wordResponse = libris.checkSpelling(word);
+
+           if (wordResponse.containsKey("invalid")) {
+            corrections.put(word, word);
+            correctedText.append(word).append(" ");
+
+           } else {
+            
+            String correctedWord = wordResponse.getOrDefault(word, word);
+            corrections.put(word, correctedWord);
             correctedText.append(correctedWord).append(" ");
+
+           }
+
         }
         return correctedText.toString().trim();
-    }
+    }  */
 
 }
