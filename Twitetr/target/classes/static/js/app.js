@@ -16,31 +16,28 @@ const quill = new Quill('#editor', {
 // Element references
 const charCounter = document.getElementById('char-counter');
 const submitButton = document.getElementById('submit-button');
-// const loader = document.getElementById('loader');
+
 const suggestionsContainer = document.querySelector('.suggestions');
 
 // Update character counter and enable/disable submit button
 quill.on('text-change', () => {
     const text = quill.getText().trim();
-    charCounter.textContent = `${text.length} / 500`;
-    submitButton.disabled = text.length === 0 || text === '\n' || text.length > 500;
+    charCounter.textContent = `${text.length} / 300`;
+    submitButton.disabled = text.length === 0 || text === '\n' || text.length > 300;
 });
 
-// Helper function to check if text is valid
-function isTextValid(text) {
-    return text.trim().length > 0;
-}
+
 
 // Validate text input before sending to backend
 function validateTextInput(text) {
-    console.log("Validating text input:", text); // Log text input for debugging
+
     if (!text || text.trim().length === 0) {
         alert('Please write something before checking spelling.');
         return false;
     }
 
-    if (text.length > 500) {
-        alert('The text exceeds the limit of 500 characters.');
+    if (text.length > 300) {
+        alert('The text exceeds the limit of 300 characters.');
         return false;
     }
 
@@ -51,12 +48,10 @@ function validateTextInput(text) {
 document.querySelector('.check-spelling').addEventListener('click', () => {
     const text = quill.getText().replace(/\n/g, '').trim(); // Remove newlines and trim whitespace
 
-    console.log("Check spelling button clicked");
-    console.log("Text to send: ", text);
+    if (!validateTextInput(text)) return;
 
-    if (!validateTextInput(text)) {
-        return;
-    }
+    // console.log("Check spelling button clicked");
+    // console.log("Text to send: ", text);
 
     fetch('http://127.0.0.1:8080/api/text/manage-text', {
         method: 'POST',
@@ -67,7 +62,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         body: JSON.stringify({ userText: text, language: 'sv' }),
     })
         .then(response => {
-            console.log("Fetch response:", response);
+            // console.log("Fetch response:", response);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -75,20 +70,24 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
 
             return response.json();
 
-        }).then(data => {
+        })
+        .then(data => {
             console.log("Response from /manage-text: ", data);
-            if (data.before && data.after) {
-                // alert('Spelling check complete!');
+            if (data.originalText && data.correctedText) {
                 suggestionsContainer.innerHTML = `
-                    <h3>Before:</h3>
-                    <p>${data.before}</p>
-                    <h3>After:</h3>
-                    <p class="clickable-suggestion" style="cursor: pointer; color: black; text-decoration: none;">${data.after}</p>
+                    <h3>Original Text:</h3>
+                    <p>${data.originalText}</p>
+                    <h3>Corrected Text:</h3>
+                    <p class="clickable-suggestion" style="cursor: pointer; color: black; text-decoration: none;">${data.correctedText}</p>
                 `;
                 const suggestionElement = document.querySelector('.clickable-suggestion');
                 suggestionElement.addEventListener('click', () => {
-                    quill.setText(data.after); // Update editor with corrected text
-                    alert(`Text updated to: ${data.after}`);
+                    quill.setText(data.correctedText); // Update editor with corrected text
+                    console.log("Text updated to:", data.correctedText);
+                    
+                    const updatedText = quill. getText().trim();
+                    charCounter.textContent = `${updatedText.length} / 300`;
+                    submitButton.disabled = updatedText.length === 0 || updatedText.length > 300;
                 });
             } else if (data.invalid) {
                 suggestionsContainer.innerHTML = `<h3>Error:</h3><p>${data.invalid}</p>`;
@@ -100,9 +99,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
             }
         })
         .catch(error => {
-            console.error('Fetch error:', error);
-            // alert('An error occurred while checking spelling.');
-            console.error('Error while submitting text:', error.message);
+            console.error('Error during fetch:', error);
             alert(`Error: ${error.message}`); // Visa backend-meddelandet i alert
         });
 });
@@ -111,6 +108,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
 // Handle Submit Button
 submitButton.addEventListener('click', () => {
     const text = quill.getText().trim();
+    if (!validateTextInput(text)) return;
 
     if (!isTextValid(text)) {
         alert('Please write something before submitting.');
@@ -122,7 +120,7 @@ submitButton.addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userText: text, language: 'sv' }),
+        body: JSON.stringify({ userText: text }),
     })
         .then(response => {
             if (!response.ok) {
@@ -132,7 +130,10 @@ submitButton.addEventListener('click', () => {
             return response.json();
         })
         .then(data => {
-            if (data.success) {
+
+            console.log("Response data for publish: ", data);
+
+            if (data.status === "success") {
                 alert('Text successfully published!');
             } else if (data.error) {
                 alert(`Failed to publish: ${data.error}`);
@@ -141,8 +142,8 @@ submitButton.addEventListener('click', () => {
             }
         })
         .catch(error => {
-            console.error('Error during publishing:', error.message);
-            alert('An error occurred. Please try again later.');
+            console.error('Error during publishing:', error);
+            alert(`An error occurred. Please try again later.`);
         });
 });
 
@@ -155,8 +156,8 @@ submitButton.addEventListener('click', async (e) => {
     const plainText = quill.getText().trim();
 
     // Kontrollera att texten är mellan 1 och 280 tecken
-    if (plainText.length === 0 || plainText.length > 280) {
-        alert('Tweet must be between 1 and 280 characters.');
+    if (plainText.length === 0 || plainText.length > 300) {
+        alert('Tweet must be between 1 and 300 characters.');
         return;
     }
 
