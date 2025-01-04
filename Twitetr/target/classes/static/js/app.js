@@ -89,13 +89,12 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
                     charCounter.textContent = `${updatedText.length} / 300`;
                     submitButton.disabled = updatedText.length === 0 || updatedText.length > 300;
                 });
-            } else if (data.invalid) {
-                suggestionsContainer.innerHTML = `<h3>Error:</h3><p>${data.invalid}</p>`;
-            } else {
+            } else if (data.message) {
+                suggestionsContainer.innerHTML = 
+                `<h3>No Corrections Found:</h3><p>${data.message}</p>`;
+            } else if (data.invalid ) {
                 suggestionsContainer.innerHTML = `
-                    <h3>No Corrections Found:</h3>
-                    <p>The text might already be correct.</p>
-                `;
+                    <h3>Error:</h3><p>${data.invalid}</p>`;
             }
         })
         .catch(error => {
@@ -106,86 +105,46 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
 
 
 // Handle Submit Button
-submitButton.addEventListener('click', () => {
-    const text = quill.getText().trim();
-    if (!validateTextInput(text)) return;
-
-    if (!isTextValid(text)) {
-        alert('Please write something before submitting.');
-        return;
-    }
-
-    fetch('http://127.0.0.1:8080/api/text/post-text', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userText: text }),
-    })
-        .then(response => {
-            if (!response.ok) {
-                console.error(`Publish Error: ${response.status} - ${response.statusText}`);
-                throw new Error(`Failed to publish: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-
-            console.log("Response data for publish: ", data);
-
-            if (data.status === "success") {
-                alert('Text successfully published!');
-            } else if (data.error) {
-                alert(`Failed to publish: ${data.error}`);
-            } else {
-                alert('Unknown response from server.');
-            }
-        })
-        .catch(error => {
-            console.error('Error during publishing:', error);
-            alert(`An error occurred. Please try again later.`);
-        });
-});
-
-
-
-// FÖR INTEGRATIONEN FÖR BACKEND
 submitButton.addEventListener('click', async (e) => {
-    e.preventDefault(); // Förhindra sidladdning
+    e.preventDefault(); // Prevent page reload
 
-    const plainText = quill.getText().trim();
+    const text = quill.getText().trim();
+    
 
-    // Kontrollera att texten är mellan 1 och 280 tecken
-    if (plainText.length === 0 || plainText.length > 300) {
-        alert('Tweet must be between 1 and 300 characters.');
-        return;
+    if (!validateTextInput(text)) {
+        return; // Stop if validation fails
     }
 
     try {
-        // Skicka text till backend och hämta svar
-        const response = await fetch('http://127.0.0.1:8080/api/text/manage-text', {
+        const response = await fetch('http://127.0.0.1:8080/api/text/post-text', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userText: plainText, language: 'sv' })
+            body: JSON.stringify({ userText: text }),
         });
 
-        if (response.ok) {
-            const result = await response.json();
+        // Check if response is OK
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            console.error("Publish Error Response:", errorResponse);
+            alert(errorResponse.message || "Unknown error occurred.");
+            return;
+        }
 
-            // Visa resultatet i frontend
-            tweetPreview.innerHTML = `
-                <p><strong>LIBRIS suggestions:</strong> ${result['LIBRIS suggestions']}</p>
-                <p><strong>User original tweet:</strong> ${result['User original tweet']}</p>
-            `;
-            previewContainer.classList.remove('hidden');
+        // Parse JSON response
+        const data = await response.json();
+        console.log("Response from /post-text:", data);
+
+        // Handle success or unexpected response
+        if (data.status === "success") {
+            alert(`Success: ${data.message}`);
         } else {
-            // alert('Failed to process the tweet. Try again!');
-            alert('Error while submitting text:', error.message);
+            alert(`Error: ${data.message}`);
         }
     } catch (error) {
-        // console.error('Error communicating with backend:', error);
-        // alert('Something went wrong. Please try again!');
+        // Log network errors or unexpected issues
+        console.error("Error during publish:", error);
+        alert(`A network or server error occurred: ${error.message || "Unknown error"}`);
     }
 });
