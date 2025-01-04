@@ -50,8 +50,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
 
     if (!validateTextInput(text)) return;
 
-    // console.log("Check spelling button clicked");
-    // console.log("Text to send: ", text);
+    
 
     fetch('http://127.0.0.1:8080/api/text/manage-text', {
         method: 'POST',
@@ -62,7 +61,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         body: JSON.stringify({ userText: text, language: 'sv' }),
     })
         .then(response => {
-            // console.log("Fetch response:", response);
+
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);

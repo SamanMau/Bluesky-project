@@ -124,12 +124,6 @@ public class ApiAuthentication {
         if (responseCode == 200) {
             String serverResponse = response.toString();
 
-            /*
-             serverResponse ser ut såhär:
-             "{ \"accessJwt\": \"eyJhbGciOiJIUzI1NiIsInR...\", 
-             \"did\": \"did:plc:h5r3fjypidqi7fcaio5i42tg\", \"handle\": 
-             \"@samanjejo.bsky.social\" }";
-             */
 
             // Hämta accessJwt
             //hoppar fram 13 poistioner för att hitta det första tecknet i värdet.
