@@ -2,73 +2,69 @@ package com.example.Twitetr.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
 import java.util.HashMap;
-
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class LibrisManager {
-    private static final String LIBRIS_API_URL = "http://api.libris.kb.se/bibspell/spell?query=%s&key=%s";
+    private static final String LIBRIS_API_URL = "http://api.libris.kb.se/bibspell/spell?query=%s&key=%s&format=json";
 
-    /**
-     * Skickar en förfrågan till LIBRIS API för att kontrollera stavningen av ett användarinmatat ord
-     * och returnerar ett resultat i form av en HashMap.
-     *
-     * @param userInput          Användarens inmatade text som ska kontrolleras för stavfel.
-     * @param specified_language Den språkvariant som användaren specificerat för stavningskontrollen.
-     * @return En HashMap som innehåller resultatet av stavningskontrollen.
-     */
+     /*
+      * Skickar en förfrågan till LIBRIS API för att kontrollera stavningen av användarens text.
+      Det som returneras är en hashmap.
+      */
     public HashMap<String, String> checkSpelling(String userInput) {
         RestTemplate restTemplate = new RestTemplate();
         HashMap<String, String> responseMap = new HashMap<>();
         String key = getKey();
         String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), key);
         String correctedWord = "";
-    
-        System.out.println("LIBRIS API URL: " + URL);
-        System.out.println("Användarinmatning: " + userInput);
-    
+
         try {
-            // Skicka GET-förfrågan till API:t
+            // skicka get-förfrågan till libris
             ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);
             String result = response.getBody();
-    
-            System.out.println("LIBRIS API svar: " + result);
-    
-            if (result != null) {
-                // Extrahera det korrigerade ordet från XML-svaret
-                correctedWord = extractCorrectedWordFromXML(result);
-                if (correctedWord != null) {
-                    String message = "Här är det korrigerade ordet: " + correctedWord;
-                    System.out.println(message); // Skriv ut meddelandet till terminalen
-                } else {
-                    System.out.println("Inga korrigeringar hittades för inmatningen."); // Skriv ut meddelande om ingen korrigering hittades
-                }
-            } else {
-                System.out.println("LIBRIS returnerade ett tomt svar."); // Skriv ut felmeddelande om inget svar mottogs
-            }
 
+            System.out.println("LIBRIS API svar: " + result);
+
+            if (result != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> jsonMap = objectMapper.readValue(result, Map.class);
+
+                // Hämta det som står innaför "suggestion"s måsvingar.
+                Map<String, Object> suggestion = (Map<String, Object>) jsonMap.get("suggestion");
+               
+                if (suggestion != null) {
+                    var terms = (List<Map<String, Object>>) suggestion.get("terms");
+                    
+                    if (terms != null && !terms.isEmpty()) {
+                        correctedWord = (String) terms.get(0).get("value");
+                        System.out.println("Här är det korrigerade ordet: " + correctedWord);
+                    } else{
+                        System.out.println("Tomt svar.");
+                    }
+                    
+                } else{
+                    System.out.println("inga suggestions"); //Denna rad verkar exekveras när LIBRIS inte lyckas returnera stavningsförslag.
+                }
+            } 
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("LIBRIS API-fel: " + e.getMessage()); // Skriv ut felmeddelande vid API-fel
         }
 
         responseMap.put("before", userInput);
         responseMap.put("after", correctedWord);
-    
+
         return responseMap;
     }
 
@@ -83,37 +79,6 @@ public class LibrisManager {
                 .filename(".env")
                 .load();
 
-        String key = dotenv.get("LIBRIS_API_NYCKEL");
-        return key;
+        return dotenv.get("LIBRIS_API_NYCKEL");
     }
-
-    /**
-     * Extraherar det korrigerade ordet från XML-svaret från LIBRIS API.
-     * 
-     * @param xmlResponse XML-svaret som returneras från LIBRIS API.
-     * @return Det korrigerade ordet om det finns, annars null.
-     */
-    private String extractCorrectedWordFromXML(String xmlResponse) {
-        try {
-            // Parsar XML-svaret med hjälp av DocumentBuilder
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            var builder = factory.newDocumentBuilder();
-            var document = builder.parse(new java.io.ByteArrayInputStream(xmlResponse.getBytes(StandardCharsets.UTF_8)));
-    
-            // Hämta alla <term>-element från XML-dokumentet
-            var termNodes = document.getElementsByTagName("term");
-            for (int i = 0; i < termNodes.getLength(); i++) {
-                var termElement = (org.w3c.dom.Element) termNodes.item(i);
-                
-                // Kontrollera om attributet 'changed' är 'true'
-                String changedAttr = termElement.getAttribute("changed");
-                if ("true".equals(changedAttr)) {
-                    return termElement.getTextContent(); // Returnera det korrigerade ordet
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null; // Returnera null om inget korrigerat ord hittas
-    }   
 }
