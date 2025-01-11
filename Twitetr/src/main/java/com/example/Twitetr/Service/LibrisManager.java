@@ -18,6 +18,7 @@ import java.util.Map;
 @Service
 public class LibrisManager {
     private static final String LIBRIS_API_URL = "http://api.libris.kb.se/bibspell/spell?query=%s&key=%s&format=json";
+    //hej
 
      /*
       * Skickar en förfrågan till LIBRIS API för att kontrollera stavningen av användarens text.
