@@ -123,9 +123,10 @@ public class BlueSky_Controller {
           if (containsInvalidCharacters(userText)) {
             response.put("invalid", "Error: The text contains forbidden characters.");
             return ResponseEntity.badRequest().body(response);
-        }
-        if (!validateInput(userText, specified_language, response)) {
+        } if(checkIfEmpty(userText)){
+            response.put("invalid", "The text is empty");
             return ResponseEntity.badRequest().body(response);
+
         }
 
         String[] words = userText.split(" ");
@@ -153,30 +154,6 @@ public class BlueSky_Controller {
         return ResponseEntity.ok(response);
     
     }
-
-    private boolean validateInput(String userText, String language, HashMap<String, String> response) {
-        if (checkIfEmpty(userText)) {
-            response.put("invalid", "The text is empty");
-            return false;
-        }
-
-        if (checkIfEmpty(language)) {
-            response.put("invalid", "No language has been specified");
-            return false;
-        }
-
-        if (!language.equals("en") && !language.equals("sv")) {
-            response.put("invalid", "Unsupported language specified. Use 'en' or 'sv'.");
-            return false;
-        }
-
-        if (containsInvalidCharacters(userText)) {
-            response.put("invalid", "The text contains invalid characters.");
-            return false;
-        }
-        return true;
-    }
-
 
 
 }
