@@ -93,7 +93,7 @@ public class LibrisManager {
      * @param xmlResponse XML-svaret som returneras från LIBRIS API.
      * @return Det korrigerade ordet om det finns, annars null.
      */
-    private String extractCorrectedWordFromXML(String xmlResponse) {
+    public String extractCorrectedWordFromXML(String xmlResponse) {
         try {
             // Parsar XML-svaret med hjälp av DocumentBuilder
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
