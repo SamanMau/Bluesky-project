@@ -109,12 +109,8 @@ public class BlueSky_Controller {
 
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
-        System.out.println("JAG ÄR I MANAGE TEXT");
-
         HashMap<String, String> response = new HashMap<>();
         String userText = userInput.get("userText");
-        String specified_language = userInput.get("language");
-        System.out.println("Received userText: " + userInput.get("userText"));
         
         if (textAboveLimit(userText)) {
             response.put("invalid", "The text exceeds 300 characters.");
@@ -136,7 +132,7 @@ public class BlueSky_Controller {
         for (String word : words) {
             HashMap<String, String> wordResponse = libris.checkSpelling(word.trim());
             String correctedWord = wordResponse.get("after");
-            if (correctedWord == null || correctedWord.equals(word)) {
+            if (correctedWord == null || correctedWord.equals(word) || correctedWord.isEmpty()) {
                 correctedWord = word; 
             } else {
                 hasCorrections = true; // At least one word was corrected
