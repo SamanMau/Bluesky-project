@@ -113,6 +113,10 @@ public class ApiAuthentication {
 
         //Läser av svaret från servern. Vi lagrar jwt och did i variabeln "response"
         Scanner input = new Scanner(streamResponse, "utf-8");
+        
+        /*
+         * StringBuilder läser serverns JSON - svar rad för rad och sparar det i en sträng.
+         */
         StringBuilder response = new StringBuilder();
         while (input.hasNext()) {
             String line = input.nextLine();
@@ -181,13 +185,12 @@ public class ApiAuthentication {
    
            // läser API-svaret och hämtar statuskod.
            int responseCode = httpConnection.getResponseCode();
-           InputStream streamResponse;
+        //   InputStream streamResponse;
    
            if(responseCode == 200){
-               streamResponse = httpConnection.getInputStream();
                return true;
            } else{
-               streamResponse = httpConnection.getErrorStream();
+       //        streamResponse = httpConnection.getErrorStream();
                return false;
            }
    
