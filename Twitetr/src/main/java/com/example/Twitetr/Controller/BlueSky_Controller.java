@@ -123,12 +123,6 @@ public class BlueSky_Controller {
         }
     }
 
-
-    private boolean publishToBlueSky(String text) {
-        System.out.println("Publishing text to BlueSky: " + text);
-        return true; 
-    }
-
      /**
      * Skapar en JSON-fil av den givna texten.
      *
