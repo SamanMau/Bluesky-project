@@ -55,8 +55,6 @@ public class LibrisManager {
                     if (terms != null && !terms.isEmpty()) {
                         correctedWord = (String) terms.get(0).get("value");
                         System.out.println("Här är det korrigerade ordet: " + correctedWord);
-                    } else{
-                        System.out.println("Tomt svar.");
                     }
                     
                 } else{
