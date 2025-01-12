@@ -15,13 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/*
+ * Den här klassen ansvarar för att kommunicera med LIBRIS API. Ett objekt av
+ * klassen skapas i Bluesky_Controller. Variabeln "LIBRIS_API_URL" är en bas URL
+ * som anger att data ska returneras i JSON format.
+ */
 @Service
 public class LibrisManager {
     private static final String LIBRIS_API_URL = "http://api.libris.kb.se/bibspell/spell?query=%s&key=%s&format=json";
-    //hej
 
      /*
-      * Skickar en förfrågan till LIBRIS API för att kontrollera stavningen av användarens text.
+      * Metoden skickar en förfrågan till LIBRIS API för att kontrollera stavningen av användarens text.
       Det som returneras är en hashmap.
       */
     public HashMap<String, String> checkSpelling(String userInput) {
