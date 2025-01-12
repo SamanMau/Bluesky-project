@@ -38,7 +38,7 @@ public class BlueSky_Controller {
      */
     
      public boolean containsInvalidCharacters(String text) {
-        String invalidCharsRegex = "[\\𖤐𐕣⁶𖤐𓃶🜏𖤐𐕣☠︎︎🗡⛧☦卐卍\"]";
+        String invalidCharsRegex = "[\\𖤐𐕣⁶𖤐𓃶🜏𖤐𐕣☠︎︎🗡⛧☦卐卍]";
         Pattern pattern = Pattern.compile(invalidCharsRegex);
         return pattern.matcher(text).find();
     }
@@ -94,16 +94,20 @@ public class BlueSky_Controller {
     public ResponseEntity<HashMap<String, Object>> postText(@RequestBody Map<String, String> userInput) {
         String text = userInput.get("userText");
         HashMap<String, Object> response = new HashMap<>();
+        
+        String replaceText = text.replace("\n", " ");
+
+
         try {
             
             // Skapa en ny instans av ApiAuthentication för inloggning
-            ApiAuthentication apiAuthentication = new ApiAuthentication();
+            ApiAuthentication apiAuthentication = new ApiAuthentication(this);
 
             // Försök att publicera text via Bluesky API
-            boolean success = apiAuthentication.manageJWT(text);
+            boolean success = apiAuthentication.manageJWT(replaceText);
 
             // Skapa en JSON-fil av texten för lagring
-            createJSONFile(text);
+            createJSONFile(replaceText);
             
             // Kontrollera om publiceringen lyckades
             if (success) {
@@ -156,20 +160,24 @@ public class BlueSky_Controller {
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
         HashMap<String, String> response = new HashMap<>();
         String userText = userInput.get("userText");
+        System.out.println(userText + " ");
         
         // Kontrollera om texten är för lång
         if (textAboveLimit(userText)) {
+            System.out.println("above limit");
             response.put("invalid", "The text exceeds 300 characters.");
             return ResponseEntity.badRequest().body(response);
          }
         // Kontrollera om texten innehåller förbjudna tecken
           if (containsInvalidCharacters(userText)) {
+            System.out.println("invalid characters");
             response.put("invalid", "Error: The text contains forbidden characters.");
             return ResponseEntity.badRequest().body(response);
         }
 
         // Kontrollera om texten är tom
         if(checkIfEmpty(userText)){
+            System.out.println("isempty");
             response.put("invalid", "The text is empty");
             return ResponseEntity.badRequest().body(response);
         }
@@ -183,10 +191,23 @@ public class BlueSky_Controller {
             // Kontrollera stavning för varje ord
             HashMap<String, String> wordResponse = libris.checkSpelling(word.trim());
             String correctedWord = wordResponse.get("after");
+            
             // Om inget förslag finns, använd ursprungsordet
             if (correctedWord == null || correctedWord.equals(word) || correctedWord.isEmpty()) {
                 correctedWord = word; 
-            } else {
+            }
+
+            if(correctedWord.length() == 1){
+                correctedWord = word; 
+            }
+            
+            if(containsNumbers(correctedWord)){
+                System.out.println("sant");
+                correctedWord = word; 
+            }
+             
+            
+            else {
                 hasCorrections = true; // Minst ett ord korrigerades
             }
             correctedText.append(correctedWord).append(" ");
@@ -202,6 +223,19 @@ public class BlueSky_Controller {
 
         return ResponseEntity.ok(response);
     
+    }
+
+    public boolean containsNumbers(String word){
+
+        for(int i = 0; i <= 9; i++){
+            String number = Integer.toString(i);
+
+            if(word.contains(number)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

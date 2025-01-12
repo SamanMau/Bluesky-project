@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Io;
+import org.springframework.http.ResponseEntity;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -20,9 +21,10 @@ import io.github.cdimascio.dotenv.Dotenv;
  * skapas i Bluesky_Controller.
  */
 public class ApiAuthentication {
+    private BlueSky_Controller controller;
 
-    public ApiAuthentication(){
-
+    public ApiAuthentication(BlueSky_Controller controller){
+        this.controller = controller;
     }
 
     /*
@@ -187,6 +189,21 @@ public class ApiAuthentication {
            httpConnection.setRequestProperty("Content-Type", "application/json");
            httpConnection.setRequestProperty("Authorization", "Bearer " + accessJwt);
            httpConnection.setDoOutput(true);
+
+        // Kontrollera om texten är för lång
+        if (controller.textAboveLimit(text)) {
+            return false;
+         }
+        // Kontrollera om texten innehåller förbjudna tecken
+          if (controller.containsInvalidCharacters(text)) {
+            return false;
+
+        }
+
+        // Kontrollera om texten är tom
+        if(controller.checkIfEmpty(text)){
+            return false;
+        }
    
            String jsonInput = getJsonInput(text, sessionDid);
    
@@ -208,6 +225,7 @@ public class ApiAuthentication {
                return true;
            } else{
                streamResponse = httpConnection.getErrorStream();
+               System.out.println(streamResponse);
                return false;
            }
    
