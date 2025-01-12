@@ -11,6 +11,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +32,13 @@ public class LibrisManager {
       */
     public HashMap<String, String> checkSpelling(String userInput) {
         RestTemplate restTemplate = new RestTemplate();
-        HashMap<String, String> responseMap = new HashMap<>();
         String key = getKey();
         String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), key);
-        String correctedWord = "";
+        ArrayList<String> responseList;
+        String words[] = userInput.split(" ");
+        ArrayList<String> wordsList = new ArrayList<>(Arrays.asList(words));
+        HashMap<String, String> mapResponse = new HashMap<>();
+
 
         try {
             // skicka get-förfrågan till libris
@@ -51,11 +56,20 @@ public class LibrisManager {
                
                 if (suggestion != null) {
                     var terms = (List<Map<String, Object>>) suggestion.get("terms");
+                    responseList = new ArrayList<>();
+
+                    for(int i = 0; i < terms.size(); i++){
+                        String word = (String) terms.get(i).get("value");
+                        mapResponse.put(wordsList.get(0), word);
+                        wordsList.remove(0);
+                    }
                     
+                    /*
                     if (terms != null && !terms.isEmpty()) {
                         correctedWord = (String) terms.get(0).get("value");
                         System.out.println("Här är det korrigerade ordet: " + correctedWord);
                     }
+                        */
                     
                 } else{
                     System.out.println("inga suggestions"); //Denna rad verkar exekveras när LIBRIS inte lyckas returnera stavningsförslag.
@@ -65,10 +79,8 @@ public class LibrisManager {
             e.printStackTrace();
         }
 
-        responseMap.put("before", userInput);
-        responseMap.put("after", correctedWord);
+        return mapResponse;
 
-        return responseMap;
     }
 
     /**

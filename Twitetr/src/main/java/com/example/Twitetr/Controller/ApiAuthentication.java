@@ -20,9 +20,10 @@ import io.github.cdimascio.dotenv.Dotenv;
  * skapas i Bluesky_Controller.
  */
 public class ApiAuthentication {
+    private BlueSky_Controller controller;
 
-    public ApiAuthentication(){
-
+    public ApiAuthentication(BlueSky_Controller blueSky_Controller){
+        this.controller = blueSky_Controller;
     }
 
     /*
@@ -175,6 +176,20 @@ public class ApiAuthentication {
      * Om texten publicerades framgångsrikt, returneras det booleska värdet "true".
      */
     public boolean createPost(String accessJwt, String sessionDid, String text) {
+        if(controller.textAboveLimit(text)){
+            return false;
+        }
+
+        if(controller.containsInvalidCharacters(text)){
+            return false;
+        }
+
+        if(controller.checkIfEmpty(text)){
+            return false;
+        }
+
+
+
         try {
    
            /*

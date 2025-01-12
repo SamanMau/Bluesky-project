@@ -97,7 +97,7 @@ public class BlueSky_Controller {
         try {
             
             // Skapa en ny instans av ApiAuthentication för inloggning
-            ApiAuthentication apiAuthentication = new ApiAuthentication();
+            ApiAuthentication apiAuthentication = new ApiAuthentication(this);
 
             // Försök att publicera text via Bluesky API
             boolean success = apiAuthentication.manageJWT(text);
@@ -156,6 +156,7 @@ public class BlueSky_Controller {
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
         HashMap<String, String> response = new HashMap<>();
         String userText = userInput.get("userText");
+        userText = userText;
         
         // Kontrollera om texten är för lång
         if (textAboveLimit(userText)) {
@@ -175,33 +176,118 @@ public class BlueSky_Controller {
         }
 
         // Korrigera stavfel med hjälp av LibrisManager
-        String[] words = userText.split(" ");
-        StringBuilder correctedText = new StringBuilder();
-        boolean hasCorrections = false;
+        String[] seperateWords = userText.split(" ");
+        StringBuilder returnText = new StringBuilder();
+        //seperate words innehåller exakt alla ord. Vi vill skicka 2 ord åt taget.
+        for(int i = 0; i < seperateWords.length; i = i + 2){
+            String[] twoWords = new String[2];
 
-        for (String word : words) {
+            if(i + 1 < seperateWords.length){
+                String word = seperateWords[i] + " " + seperateWords[i+1];
+
+                System.out.println("SKICKA TILL LIBRIS: " + word);
+                HashMap<String, String> mapResponse = libris.checkSpelling(word);
+                String firstWordSuggestion = mapResponse.get(seperateWords[i]);
+    
+                if(firstWordSuggestion == null || firstWordSuggestion.equals(seperateWords[i]) || firstWordSuggestion.isEmpty()){
+                    firstWordSuggestion = seperateWords[i];
+                }
+    
+                if(firstWordSuggestion.length() == 1){
+                    firstWordSuggestion = seperateWords[i];
+                }
+    
+                if(containsNumbers(firstWordSuggestion)){
+                    firstWordSuggestion = seperateWords[i];
+                } 
+    
+                returnText.append(firstWordSuggestion).append(" ");
+    
+                String secondWordSuggestion = mapResponse.get(seperateWords[i + 1]);
+    
+                if(secondWordSuggestion == null || secondWordSuggestion.equals(seperateWords[i + 1]) || secondWordSuggestion.isEmpty()){
+                    secondWordSuggestion = seperateWords[i + 1];
+                }
+    
+                if(secondWordSuggestion.length() == 1){
+                    secondWordSuggestion = seperateWords[i + 1];
+                }
+    
+                if(containsNumbers(secondWordSuggestion)){
+                    secondWordSuggestion = seperateWords[i +1];
+                } 
+    
+                returnText.append(secondWordSuggestion).append(" ");
+            } else {
+                String word = seperateWords[i];
+
+                HashMap<String, String> mapResponse = libris.checkSpelling(word);
+                String firstWordSuggestion = mapResponse.get(seperateWords[i]);
+    
+                if(firstWordSuggestion == null || firstWordSuggestion.equals(seperateWords[i]) || firstWordSuggestion.isEmpty()){
+                    firstWordSuggestion = seperateWords[i];
+                }
+    
+                if(firstWordSuggestion.length() == 1){
+                    firstWordSuggestion = seperateWords[i];
+                }
+    
+                if(containsNumbers(firstWordSuggestion)){
+                    firstWordSuggestion = seperateWords[i];
+                } 
+    
+                returnText.append(firstWordSuggestion).append(" ");
+            }
+
+
+
+
+            //få ordet innan bearbetning och behandla den.
+
+        }
+
+
+
+
+        /*
+        for (String word : seperateWords) {
             // Kontrollera stavning för varje ord
             HashMap<String, String> wordResponse = libris.checkSpelling(word.trim());
             String correctedWord = wordResponse.get("after");
             // Om inget förslag finns, använd ursprungsordet
             if (correctedWord == null || correctedWord.equals(word) || correctedWord.isEmpty()) {
                 correctedWord = word; 
-            } else {
+            } if(correctedWord.length() == 1){
+                correctedWord = word;
+            } if(containsNumbers(correctedWord)){
+                correctedWord = word;
+            }
+            
+            else {
                 hasCorrections = true; // Minst ett ord korrigerades
             }
             correctedText.append(correctedWord).append(" ");
         }
+     */
 
-        // Lägg till resultat i svaret
-        response.put("originalText", userText);
-        if (hasCorrections) {
-            response.put("correctedText", correctedText.toString().trim());
-        } else {
-            response.put("message", "No corrections found. The text might already be correct.");
-        }
+     response.put("originalText", userText);
+     response.put("correctedText", returnText.toString());
 
         return ResponseEntity.ok(response);
     
+    }
+
+    public boolean containsNumbers(String word){
+
+        for(int i = 0; i <= 9; i++){
+            String number = Integer.toString(i);
+
+            if(word.contains(number)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
