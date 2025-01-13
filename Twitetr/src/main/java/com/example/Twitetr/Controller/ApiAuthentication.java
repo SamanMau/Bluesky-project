@@ -205,6 +205,8 @@ public class ApiAuthentication {
             return false;
         }
    
+          text = text.replace("\"", "\\\"");
+
            String jsonInput = getJsonInput(text, sessionDid);
    
            //Öpnar en utström och skickar JSON variabeln.
@@ -225,7 +227,32 @@ public class ApiAuthentication {
                return true;
            } else{
                streamResponse = httpConnection.getErrorStream();
-               System.out.println(streamResponse);
+
+                if(responseCode == 201){
+                    System.out.println("201");
+                }
+
+                if(responseCode == 400){
+                    System.out.println("400");
+                }
+
+                if(responseCode == 401){
+                    System.out.println("401");
+                }
+                
+                if(responseCode == 403){
+                    System.out.println("403");
+                }
+
+                if(responseCode == 404){
+                    System.out.println("404");
+                }
+
+                if(responseCode == 500){
+                    System.out.println("500");
+                }
+
+
                return false;
            }
    

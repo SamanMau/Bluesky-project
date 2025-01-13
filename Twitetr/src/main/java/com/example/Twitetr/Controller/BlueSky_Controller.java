@@ -46,7 +46,7 @@ public class BlueSky_Controller {
 
     /**
      * Kontrollera om texten är tom eller bara innehåller mellanslag.
-     *
+     * "text.matches()" kontrollerar om texten bara innehåller osynliga tecken som \n och \t
      * @param text Texten att kontrollera.
      * @return true om texten är tom; false annars.
      */
@@ -160,7 +160,6 @@ public class BlueSky_Controller {
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
         HashMap<String, String> response = new HashMap<>();
         String userText = userInput.get("userText");
-        System.out.println(userText + " ");
         
         // Kontrollera om texten är för lång
         if (textAboveLimit(userText)) {
@@ -177,7 +176,6 @@ public class BlueSky_Controller {
 
         // Kontrollera om texten är tom
         if(checkIfEmpty(userText)){
-            System.out.println("isempty");
             response.put("invalid", "The text is empty");
             return ResponseEntity.badRequest().body(response);
         }
