@@ -1,4 +1,4 @@
-// Initialize Quill.js editor
+// Initialiserar Quill.js-redigeraren
 const quill = new Quill('#editor', {
     theme: 'snow',
     placeholder: 'Write your post here...',
@@ -13,13 +13,13 @@ const quill = new Quill('#editor', {
     },
 });
 
-// Element references
+// Referenser till HTML-element
 const charCounter = document.getElementById('char-counter');
 const submitButton = document.getElementById('submit-button');
 
 const suggestionsContainer = document.querySelector('.suggestions');
 
-// Update character counter and enable/disable submit button
+// Uppdaterar teckenräknaren och aktiverar/inaktiverar sänd-knappen
 quill.on('text-change', () => {
     const text = quill.getText().trim();
     charCounter.textContent = `${text.length} / 300`;
@@ -28,7 +28,7 @@ quill.on('text-change', () => {
 
 
 
-// Validate text input before sending to backend
+// Validerar textinput innan det skickas till backend
 function validateTextInput(text) {
 
     if (!text || text.trim().length === 0) {
@@ -44,9 +44,9 @@ function validateTextInput(text) {
     return true;
 }
 
-// Handle Check Spelling
+// Hanterar stavningskontroll
 document.querySelector('.check-spelling').addEventListener('click', () => {
-    const text = quill.getText().replace(/\n/g, '').trim(); // Remove newlines and trim whitespace
+    const text = quill.getText().replace(/\n/g, '').trim(); 
 
     if (!validateTextInput(text)) return;
 
@@ -57,7 +57,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        // default language is Swedish
+        // Standardspråket är svenska
         body: JSON.stringify({ userText: text, language: 'sv' }),
     })
         .then(response => {
@@ -81,7 +81,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
                 `;
                 const suggestionElement = document.querySelector('.clickable-suggestion');
                 suggestionElement.addEventListener('click', () => {
-                    quill.setText(data.correctedText); // Update editor with corrected text
+                    quill.setText(data.correctedText); 
                     console.log("Text updated to:", data.correctedText);
                     
                     const updatedText = quill. getText().trim();
@@ -98,20 +98,20 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         })
         .catch(error => {
             console.error('Error during fetch:', error);
-            alert(`Error: ${error.message}`); // Visa backend-meddelandet i alert
+            alert(`Error: ${error.message}`); 
         });
 });
 
 
-// Handle Submit Button
+// Hanterar sänd-knappen
 submitButton.addEventListener('click', async (e) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault(); 
 
     const text = quill.getText().trim();
     
 
     if (!validateTextInput(text)) {
-        return; // Stop if validation fails
+        return; 
     }
 
     try {
@@ -123,7 +123,7 @@ submitButton.addEventListener('click', async (e) => {
             body: JSON.stringify({ userText: text }),
         });
 
-        // Check if response is OK
+        // Kontrollera om responsen är OK
         if (!response.ok) {
             const errorResponse = await response.json();
             console.error("Publish Error Response:", errorResponse);
@@ -131,18 +131,18 @@ submitButton.addEventListener('click', async (e) => {
             return;
         }
 
-        // Parse JSON response
+        // Tolka JSON-responsen
         const data = await response.json();
         console.log("Response from /post-text:", data);
 
-        // Handle success or unexpected response
+        // Hantera framgång eller oväntad respons
         if (data.status === "success") {
             alert(`Success: ${data.message}`);
         } else {
             alert(`Error: ${data.message}`);
         }
     } catch (error) {
-        // Log network errors or unexpected issues
+        // Logga nätverksfel eller oväntade problem
         console.error("Error during publish:", error);
         alert(`A network or server error occurred: ${error.message || "Unknown error"}`);
     }
