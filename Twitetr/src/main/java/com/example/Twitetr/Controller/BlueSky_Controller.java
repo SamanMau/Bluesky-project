@@ -99,7 +99,7 @@ public class BlueSky_Controller {
 
 
         try {
-            
+
             // Skapa en ny instans av ApiAuthentication för inloggning
             ApiAuthentication apiAuthentication = new ApiAuthentication(this);
 
@@ -122,26 +122,6 @@ public class BlueSky_Controller {
             response.put("message", "Server encountered an error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-    }
-
-     /**
-     * Skapar en JSON-fil av den givna texten.
-     *
-     * @param text Texten att lagra i JSON-filen.
-     * @throws IOException Om filen inte kan skapas.
-     */
-
-    private void createJSONFile(String text) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        File file = new File("userText.json");
-
-        // Lagra texten som en nyckel-värde-pair i filen
-        Map<String, String> data = new HashMap<>();
-        data.put("userText", text);
-
-        // Skriv datan till fil
-        objectMapper.writeValue(file, data);
-        System.out.println("JSON file created successfully with text: " + text);
     }
 
 
