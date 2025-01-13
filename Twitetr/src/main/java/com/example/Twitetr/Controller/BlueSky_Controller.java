@@ -105,9 +105,6 @@ public class BlueSky_Controller {
 
             // Försök att publicera text via Bluesky API
             boolean success = apiAuthentication.manageJWT(replaceText);
-
-            // Skapa en JSON-fil av texten för lagring
-            createJSONFile(replaceText);
             
             // Kontrollera om publiceringen lyckades
             if (success) {
