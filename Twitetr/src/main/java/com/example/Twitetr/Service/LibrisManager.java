@@ -57,8 +57,22 @@ public class LibrisManager {
                     var terms = (List<Map<String, Object>>) suggestion.get("terms");
                     
                     if (terms != null && !terms.isEmpty()) {
-                        correctedWord = (String) terms.get(0).get("value");
-                        System.out.println("Här är det korrigerade ordet: " + correctedWord);
+                     
+                        int count = 0;
+                        for (Map<String, Object> term : terms){
+                            if(term.containsKey("value")){
+                                count++;
+                            }
+                        }
+                //Detta skulle indikera att det sannolikt har gått fel, exempelvis att ordet "glömde" genererar "GL C3 MDE" vilket är 3 values.
+                // I detta fall, behåller vi användarens ursprungliga ord.
+
+                        if(count > 1){
+                            correctedWord = userInput;
+                        }
+                        else {
+                            correctedWord = (String) terms.get(0).get("value");
+                        }
                     }
                     
                 } else{
