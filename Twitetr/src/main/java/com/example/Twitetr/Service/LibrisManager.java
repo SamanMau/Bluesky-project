@@ -23,6 +23,7 @@ import java.util.Map;
  */
 @Service
 public class LibrisManager {
+    //URL för anrop av API:et. hämtats från api.libris.kb.se/bibspell/#.
     private static final String LIBRIS_API_URL = "http://api.libris.kb.se/bibspell/spell?query=%s&key=%s&format=json";
 
      /*
@@ -38,10 +39,10 @@ public class LibrisManager {
         String correctedWord = "";
         System.out.println("Genererad URL: " + URL);
 
-        try {
-            // skicka get-förfrågan till libris
-            ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);
-            String result = response.getBody();
+        try {              
+             //skicka get-förfrågan till libris och returnerar svarskroppen.
+              String result = restTemplate.getForObject(URL, String.class);
+
 
             System.out.println("LIBRIS API svar: " + result);
 
