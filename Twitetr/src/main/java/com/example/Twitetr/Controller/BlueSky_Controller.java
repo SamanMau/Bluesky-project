@@ -203,8 +203,13 @@ public class BlueSky_Controller {
                 System.out.println("sant");
                 correctedWord = word; 
             }
+
+            String[] wordDivided = correctedWord.split(" ");
+
+            if(wordDivided.length > 1){
+                correctedWord = word; 
+            }
              
-            
             else {
                 hasCorrections = true; // Minst ett ord korrigerades
             }

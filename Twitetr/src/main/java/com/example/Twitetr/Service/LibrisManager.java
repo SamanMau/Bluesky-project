@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +33,10 @@ public class LibrisManager {
         RestTemplate restTemplate = new RestTemplate();
         HashMap<String, String> responseMap = new HashMap<>();
         String key = getKey();
+        System.out.println("Userinput: " + userInput);
         String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), key);
         String correctedWord = "";
+        System.out.println("Genererad URL: " + URL);
 
         try {
             // skicka get-förfrågan till libris
@@ -50,6 +53,7 @@ public class LibrisManager {
                 Map<String, Object> suggestion = (Map<String, Object>) jsonMap.get("suggestion");
                
                 if (suggestion != null) {
+                    //terms innehåller en list av hashmaps
                     var terms = (List<Map<String, Object>>) suggestion.get("terms");
                     
                     if (terms != null && !terms.isEmpty()) {
