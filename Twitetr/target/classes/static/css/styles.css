@@ -1,162 +1,104 @@
 body {
     font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #74ebd5, #acb6e5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     margin: 0;
-    padding: 0;
-    background-color: #f7f8fa;
-    color: #333;
-}
-
-.replace-text {
-    display: block;
-    margin: 10px auto;
-    padding: 10px 15px;
-    font-size: 16px;
-    background-color: #ddd;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.replace-text:hover {
-    background-color: #bbb;
 }
 
 .container {
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.container:hover {
+    transform: translateY(-5px);
 }
 
 h1 {
-    font-size: 24px;
-    font-weight: 500;
-    text-align: center;
-    margin-bottom: 20px;
-    color: #3b5998;
+    font-weight: 700;
+    color: #333;
 }
 
 .input-group {
-    margin-bottom: 20px;
-}
-
-textarea {
     width: 100%;
-    height: 100px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: none;
-    font-size: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
 }
 
-.button {
-    display: inline-block;
-    background-color: #3b5998;
-    color: #fff;
-    text-align: center;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-    text-decoration: none;
-}
-
-.button:hover {
-    background-color: #2e477a;
-}
-
-.suggestions {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #e0e0e0;
+#editor {
+    height: 120px;
+    width: 100%;
     background: #f9f9f9;
-    border-radius: 4px;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    transition: border 0.3s ease-in-out;
+    text-align: center;
 }
 
-.suggestion-item {
-    padding: 5px 10px;
-    border-bottom: 1px solid #e0e0e0;
+#editor:focus-within {
+    border: 1px solid #007bff;
 }
 
-.suggestion-item:last-child {
-    border-bottom: none;
+#char-counter {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
 }
 
 .action-buttons {
+    width: 100%;
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
-.action-buttons button {
-    flex: 1;
-    margin: 0 5px;
-    padding: 10px;
+button {
+    padding: 12px 18px;
     border: none;
-    border-radius: 4px;
-    font-size: 16px;
+    border-radius: 30px;
     cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
-.action-buttons .check-spelling {
-    background-color: #f1c40f;
-    color: #fff;
+.check-spelling, .publish-tweet, #replace-text {
+    background: #74ebd5;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.action-buttons .check-spelling:hover {
-    background-color: #d4ac0d;
+.publish-tweet:hover, .check-spelling:hover, #replace-text:hover {
+    background: #5dc8b8;
+    transform: scale(1.05);
 }
 
-.action-buttons .publish-tweet {
-    background-color: #2ecc71;
-    color: #fff;
+.suggestions {
+    width: 100%;
+    margin-top: 15px;
+    background: #eef5ff;
+    padding: 12px;
+    border-radius: 12px;
 }
 
-.action-buttons .publish-tweet:hover {
-    background-color: #27ae60;
+.suggestion-item {
+    font-size: 14px;
+    color: #444;
 }
 
-@media (max-width: 768px) {
-    .container {
-        margin: 20px;
-        padding: 15px;
-    }
-
-    h1 {
-        font-size: 20px;
-    }
-
-    .button {
-        padding: 8px 16px;
-        font-size: 14px;
-    }
-
-    textarea {
-        height: 80px;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        margin: 10px;
-        padding: 10px;
-    }
-
-    h1 {
-        font-size: 18px;
-    }
-
-    .button {
-        padding: 6px 12px;
-        font-size: 12px;
-    }
-
-    textarea {
-        height: 60px;
-    }
+#replace-text {
+    display: none;
+    margin-top: 10px;
 }
