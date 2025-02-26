@@ -1,4 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const loginForm = document.getElementById("loginForm");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", sendLoginInfo);
+        return; // Stoppa exekvering av resten av koden om vi är på login-sidan
+    }
+    
+    
     const editor = document.getElementById("editor");
     const charCounter = document.getElementById("char-counter");
     const checkSpellingButton = document.querySelector(".check-spelling");
@@ -7,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const suggestionsContainer = document.querySelector(".suggestions");
 
     // Hide "Replace With New Text" button by default
-   // replaceButton.style.display = "none";
+    replaceButton.style.display = "none";
 
     // Character counter update
     editor.addEventListener("input", function () {

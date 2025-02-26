@@ -160,6 +160,9 @@ public class BlueSky_Controller {
         String name = userInput.get("userName");
         String password = userInput.get("password");
 
+        Database_Controller controller = new Database_Controller(this);
+        boolean exists = controller.checkIfUserExists(name, password);
+
         System.out.println(name + password);
 
      }
