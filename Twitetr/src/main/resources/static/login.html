@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 
 <head>
-<title>Bluesky Manager Login Page</title>
-<link rel="stylesheet" href="css/loginStyles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluesky Manager Login Page</title>
+    <link rel="stylesheet" href="css/loginStyles.css"> <!-- Korrigerad sökväg -->
 </head>
 
 <body>
@@ -12,38 +13,36 @@
     <div class="MainTitle">
         <h1>Welcome to Bluesky Manager!</h1>
     </div>
- 
+
     <div class="Short-descp">
-        <h3> To be able to use this mashup service, you need to have a Bluesky Manager account</h3>
+        <h3>To be able to use this mashup service, you need to have a Bluesky Manager account</h3>
     </div>
 
     <div class="loginCredentials">
-        Log in
-
+        <h2>Log in</h2>
         <form onsubmit="sendLoginInfo(event)">
             <label for="logInUsername">Username</label>
-            <input type="text" id="logInUsername" />
-            
-            <label for="logInPassword">Password</label>
-            <input type="password" id="logInPassword" />
-            
-            <button type="submit">Log in</button>
-          </form>
-          
+            <input type="text" id="logInUsername" required />
 
+            <label for="logInPassword">Password</label>
+            <input type="password" id="logInPassword" required />
+
+            <button type="submit" class="logIn">Log in</button>
+        </form>
     </div>
 
     <div class="signUpCredentials">
-        Sign up
+        <h2>Sign up</h2>
+        <label for="signInUsername">Username</label>
+        <input type="text" id="signInUsername" class="username" placeholder="Username..." required />
 
-        <textarea class= "username" id = "signInUsername" placeholder="Username..."></textarea>
-        <textarea class= "password" id = "signInPassword" placeholder="password..."></textarea>
+        <label for="signInPassword">Password</label>
+        <input type="password" id="signInPassword" class="password" placeholder="Password..." required />
 
-        <button class="signIn">Sign in</button>
+        <button class="signIn">Sign up</button>
     </div>
-</script>
-<script src="js/app.js" defer></script>
 
+    <script src="app.js" defer></script> <!-- Korrigerad sökväg och taggproblem fixat -->
 
 </body>
 

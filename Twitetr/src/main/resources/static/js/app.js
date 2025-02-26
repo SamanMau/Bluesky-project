@@ -103,8 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) {
               throw new Error(`Serverfel: ${response.status}`);
             }
-            // Om du vill läsa svar (just nu returnerar metoden void):
-            // return response.json(); // men i så fall behöver du returnera något i Java
             return response;
           })
           .then(data => {
@@ -117,22 +115,6 @@ document.addEventListener("DOMContentLoaded", function () {
           });
       }
       
-
-        /*
-        .then(response => response.json()) // Convert response to JSON
-        .then(data => {
-            console.log("Response from backend:", data);
-            if (data.token) {
-                localStorage.setItem("token", data.token); // Save JWT token for authentication
-            } else {
-                console.error("Login failed:", data.message);
-            }
-        })
-        .catch(error => console.error("Error:", error));
-        */
-
-    
-
     // Submit Post
     submitButton.addEventListener("click", async (e) => {
         e.preventDefault();
