@@ -163,8 +163,6 @@ public class BlueSky_Controller {
         Database_Controller controller = new Database_Controller(this);
         boolean exists = controller.checkIfUserExists(name, password);
 
-        System.out.println(name + password);
-
      }
 
     @PostMapping("/manage-text")

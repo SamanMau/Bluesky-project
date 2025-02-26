@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function sendLoginInfo(event) {
-        event.preventDefault(); // Stoppar sidans standard reload
+        event.preventDefault();
     
         const username = document.getElementById("logInUsername").value;
         const password = document.getElementById("logInPassword").value;

@@ -22,11 +22,9 @@
         <h2>Log in</h2>
 
         <form onsubmit="sendLoginInfo(event)" id="loginForm">
-            <label for="logInUsername">Username</label>
-            <input type="text" id="logInUsername" required />
+            <input type="text" class ="loginNameInput" placeholder="Username..."  id="logInUsername" required />
 
-            <label for="logInPassword">Password</label>
-            <input type="password" id="logInPassword" required />
+            <input type="password" class ="loginPasswordInput" placeholder="Password..."  id="logInPassword" required />
 
             <button type="submit" id="submit-button" class="logIn">Log in</button>
         </form>
@@ -34,10 +32,9 @@
 
     <div class="signUpCredentials">
         <h2>Sign up</h2>
-        <label for="signInUsername">Username</label>
+        
         <input type="text" id="signInUsername" class="username" placeholder="Username..." required />
 
-        <label for="signInPassword">Password</label>
         <input type="password" id="signInPassword" class="password" placeholder="Password..." required />
 
         <button class="signIn">Sign up</button>
