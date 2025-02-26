@@ -81,7 +81,6 @@ public class BlueSky_Controller {
         return response;
     }
 
-
      /**
      * Endpoint för att skicka text till Bluesky API.
      * Den hanterar inloggning, publicering och felhantering.
@@ -155,6 +154,15 @@ public class BlueSky_Controller {
      * @param userInput Användarens text som JSON.
      * @return ResponseEntity med eventuella korrigeringar eller felmeddelanden.
      */
+
+     @PostMapping("/login-Info")
+     public void loginInfo(@RequestBody HashMap<String, String> userInput){
+        String name = userInput.get("userName");
+        String password = userInput.get("password");
+
+        System.out.println(name + password);
+
+     }
 
     @PostMapping("/manage-text")
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {

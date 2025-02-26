@@ -83,6 +83,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    function getLoginInfo(){
+        let userName = document.getElementById("logInUsername").value;
+        let password = document.getElementById("logInPassword").value;
+
+        let loginInfo = {
+            userName: userName,
+            password: password
+        };
+
+        fetch("http://127.0.0.1:8080/api/text/login-info", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(loginData) // Convert JavaScript object to JSON
+        })
+
+        /*
+        .then(response => response.json()) // Convert response to JSON
+        .then(data => {
+            console.log("Response from backend:", data);
+            if (data.token) {
+                localStorage.setItem("token", data.token); // Save JWT token for authentication
+            } else {
+                console.error("Login failed:", data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+        */
+
+    }
+
     // Submit Post
     submitButton.addEventListener("click", async (e) => {
         e.preventDefault();
