@@ -84,11 +84,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function sendLoginInfo(event) {
-        event.preventDefault();
-      
+        event.preventDefault(); // Stoppar sidans standard reload
+    
         const username = document.getElementById("logInUsername").value;
         const password = document.getElementById("logInPassword").value;
-      
+    
         fetch("http://127.0.0.1:8080/api/text/login-info", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -97,21 +97,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 password: password
             })
         })
-            .then(response => response.json())  // Se till att svar tolkas som JSON
-            .then(data => {
-                if (data.success) {
-                    console.log("Login successful:", data);
-                    alert("✅ Inloggning lyckades!");
-                } else {
-                    throw new Error(data.message || "Inloggning misslyckades");
-                }
-            })
-            
-            .catch(error => {
-                console.error("Error:", error);
-                alert(`Kunde inte logga in: ${error.message}`);
-            });
-      }
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Login successful:", data);
+                alert("✅ Inloggning lyckades!");
+            } else {
+                throw new Error(data.message || "Inloggning misslyckades");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert(`Kunde inte logga in: ${error.message}`);
+        });
+    }
+    
       
     // Submit Post
     submitButton.addEventListener("click", async (e) => {
