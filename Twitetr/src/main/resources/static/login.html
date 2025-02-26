@@ -20,14 +20,15 @@
 
     <div class="loginCredentials">
         <h2>Log in</h2>
-        <form onsubmit="sendLoginInfo(event)">
+
+        <form onsubmit="sendLoginInfo(event)" id="loginForm">
             <label for="logInUsername">Username</label>
             <input type="text" id="logInUsername" required />
 
             <label for="logInPassword">Password</label>
             <input type="password" id="logInPassword" required />
 
-            <button type="submit" class="logIn">Log in</button>
+            <button type="submit" id="submit-button" class="logIn">Log in</button>
         </form>
     </div>
 

@@ -90,29 +90,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const password = document.getElementById("logInPassword").value;
       
         fetch("http://127.0.0.1:8080/api/text/login-info", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            userName: username,
-            password: password
-          })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userName: username,
+                password: password
+            })
         })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`Serverfel: ${response.status}`);
-            }
-            return response;
-          })
-          .then(data => {
-            console.log("Svar från server:", data);
-            alert("Inloggning skickad till servern!");
-          })
-          .catch(error => {
-            console.error("Error:", error);
-            alert("Kunde inte logga in.");
-          });
+            .then(response => response.json())  // Se till att svar tolkas som JSON
+            .then(data => {
+                if (data.success) {
+                    console.log("Login successful:", data);
+                    alert("✅ Inloggning lyckades!");
+                } else {
+                    throw new Error(data.message || "Inloggning misslyckades");
+                }
+            })
+            
+            .catch(error => {
+                console.error("Error:", error);
+                alert(`Kunde inte logga in: ${error.message}`);
+            });
       }
       
     // Submit Post
