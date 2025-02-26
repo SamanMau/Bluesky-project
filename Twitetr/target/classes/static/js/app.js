@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const suggestionsContainer = document.querySelector(".suggestions");
 
     // Hide "Replace With New Text" button by default
-    replaceButton.style.display = "none";
+   // replaceButton.style.display = "none";
 
     // Character counter update
     editor.addEventListener("input", function () {
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(loginData) // Convert JavaScript object to JSON
+            body: JSON.stringify(loginInfo) // Convert JavaScript object to JSON
         })
 
         /*

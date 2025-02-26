@@ -20,10 +20,15 @@
     <div class="loginCredentials">
         Log in
 
-        <textarea class= "username" id = "logInUsername" placeholder="Username..."></textarea>
-        <textarea class= "password" id = "logInPassword" placeholder="password..."></textarea>
+        <form>
+            <label class= "username" for="username">Username</label><br>
+            <input type="text" id="logInUsername" name="username"><br>
+            <label class= "password" for="password">Password</label><br>
+            <input type="text" id="logInPassword" name="password">
+            <button class="logIn" onclick = "getLoginInfo()">Log in</button>
 
-        <button class="logIn" onClick = "getLoginInfo()">Log in</button>
+          </form>
+
     </div>
 
     <div class="signUpCredentials">
