@@ -20,14 +20,16 @@
     <div class="loginCredentials">
         Log in
 
-        <form>
-            <label class= "username" for="username">Username</label><br>
-            <input type="text" id="logInUsername" name="username"><br>
-            <label class= "password" for="password">Password</label><br>
-            <input type="text" id="logInPassword" name="password">
-            <button class="logIn" onclick = "getLoginInfo()">Log in</button>
-
+        <form onsubmit="sendLoginInfo(event)">
+            <label for="logInUsername">Username</label>
+            <input type="text" id="logInUsername" />
+            
+            <label for="logInPassword">Password</label>
+            <input type="password" id="logInPassword" />
+            
+            <button type="submit">Log in</button>
           </form>
+          
 
     </div>
 

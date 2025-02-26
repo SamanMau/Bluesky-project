@@ -83,22 +83,40 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    function getLoginInfo(){
-        let userName = document.getElementById("logInUsername").value;
-        let password = document.getElementById("logInPassword").value;
-
-        let loginInfo = {
-            userName: userName,
-            password: password
-        };
-
+    function sendLoginInfo(event) {
+        event.preventDefault();
+      
+        const username = document.getElementById("logInUsername").value;
+        const password = document.getElementById("logInPassword").value;
+      
         fetch("http://127.0.0.1:8080/api/text/login-info", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(loginInfo) // Convert JavaScript object to JSON
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userName: username,
+            password: password
+          })
         })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Serverfel: ${response.status}`);
+            }
+            // Om du vill läsa svar (just nu returnerar metoden void):
+            // return response.json(); // men i så fall behöver du returnera något i Java
+            return response;
+          })
+          .then(data => {
+            console.log("Svar från server:", data);
+            alert("Inloggning skickad till servern!");
+          })
+          .catch(error => {
+            console.error("Error:", error);
+            alert("Kunde inte logga in.");
+          });
+      }
+      
 
         /*
         .then(response => response.json()) // Convert response to JSON
@@ -113,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => console.error("Error:", error));
         */
 
-    }
+    
 
     // Submit Post
     submitButton.addEventListener("click", async (e) => {

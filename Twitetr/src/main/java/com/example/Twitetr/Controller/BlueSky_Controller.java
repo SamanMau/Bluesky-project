@@ -155,7 +155,7 @@ public class BlueSky_Controller {
      * @return ResponseEntity med eventuella korrigeringar eller felmeddelanden.
      */
 
-     @PostMapping("/login-Info")
+     @PostMapping("/login-info")
      public void loginInfo(@RequestBody HashMap<String, String> userInput){
         String name = userInput.get("userName");
         String password = userInput.get("password");
