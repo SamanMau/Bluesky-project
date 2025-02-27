@@ -31,8 +31,6 @@ public class Database_Controller{
         if(number == 0){
             System.out.println("jag är inne här mannen");
             return true;
-        }  else{
-            System.out.println("funkar inte");
         }
 
         callableStatement.close();
