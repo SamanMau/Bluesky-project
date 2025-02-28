@@ -102,3 +102,19 @@ button {
     display: none;
     margin-top: 10px;
 }
+
+.button-div{
+    margin-bottom: 920px;
+    align-items: center;
+}
+
+.signout-button{
+    border-radius: 19px;
+    background: #74ebd5;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.signout-button:hover{
+    cursor: pointer;
+}

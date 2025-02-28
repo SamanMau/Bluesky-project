@@ -45,8 +45,11 @@ public class Database_Controller{
     }
 
     public void signUpUser(String username, String password){
+        String name = getUsername();
+        String sqlpassword = getpassword();
+
         try (Connection con = DriverManager.getConnection(
-                "jdbc:postgresql://pgserver.mau.se:5432/al4470", "al4470", "og3en2x5");
+                "jdbc:postgresql://pgserver.mau.se:5432/"+name, name, sqlpassword);
 
             CallableStatement callableStatement = con.prepareCall("call registerUser(?, ?)")) {
             callableStatement.setString(1, username);
@@ -55,7 +58,10 @@ public class Database_Controller{
             callableStatement.close();
             con.close();
 
+            
+
         } catch (SQLException e) {
+            System.out.println("error");
             e.printStackTrace();
         }
     }

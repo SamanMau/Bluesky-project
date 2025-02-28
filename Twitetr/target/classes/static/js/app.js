@@ -4,16 +4,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (loginForm) {
         loginForm.addEventListener("submit", sendLoginInfo);
-        return; // Stoppa exekvering av resten av koden om vi är på login-sidan
     }
 
     if(signInForm){
-        alert("hello");
-        signInForm.addEventListener("submitt", sendSigninInfo);
+        signInForm.addEventListener("submit", sendSigninInfo);
         return;
     }
     
     
+    const signOutButton = document.getElementById("signOutForm");
     const editor = document.getElementById("editor");
     const charCounter = document.getElementById("char-counter");
     const checkSpellingButton = document.querySelector(".check-spelling");
@@ -23,6 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Hide "Replace With New Text" button by default
     replaceButton.style.display = "none";
+
+    signOutButton.addEventListener("submit", signOut);
 
     // Character counter update
     editor.addEventListener("input", function () {
@@ -98,6 +99,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    function signOut(event){
+        event.preventDefault();
+        window.location.href = "login.html";
+    }
+
     function sendLoginInfo(event) {
         event.preventDefault();
     
@@ -119,7 +125,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const isSuccess = text.trim() === "true";
     
             if (isSuccess) {
-                alert("💻 Log in successful");
+                window.location.href = "index.html";
+                alert("💻 Log in successful. Press ok");
             } else {
                 alert(`❌ Could not log in. Either the user does not exist or you have entered incorrect login details.`);
             }
@@ -150,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const isSuccess = text.trim() === "true";
     
             if (isSuccess) {
+                window.location.href = "index.html";
                 alert("💻 Account created successfully");
             } else {
                 alert(`❌ The email is already in use.`);
