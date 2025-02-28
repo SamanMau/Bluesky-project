@@ -105,20 +105,54 @@ document.addEventListener("DOMContentLoaded", function () {
                 password: password
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log("Login successful:", data);
-                alert("✅ Inloggning lyckades!");
+        .then(response => response.text())
+        .then(text => {
+
+            // konvertera texten "true" eller "false" till en riktig boolean
+            const isSuccess = text.trim() === "true";
+    
+            if (isSuccess) {
+                alert("💻 Log in successful");
             } else {
-                throw new Error(data.message || "Inloggning misslyckades");
+                alert(`❌ Could not log in. Either the user does not exist or you have entered incorrect login details.`);
             }
         })
         .catch(error => {
-            console.error("Error:", error);
-            alert(`Kunde inte logga in: ${error.message}`);
+            alert(`❌ Could not log in. Either the user does not exist or you have entered incorrect login details.`);
         });
     }
+
+    function sendSigninInfo(event) {
+        event.preventDefault();
+    
+        const username = document.getElementById("signInUsername").value;
+        const password = document.getElementById("signInPassword").value;
+    
+        fetch("http://127.0.0.1:8080/api/text/signin-info", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userName: username,
+                password: password
+            })
+        })
+        .then(response => response.text())
+        .then(text => {
+
+            // konvertera texten "true" eller "false" till en riktig boolean
+            const isSuccess = text.trim() === "true";
+    
+            if (isSuccess) {
+                alert("💻 Account created successfully");
+            } else {
+                alert(`❌ The email is already in use.`);
+            }
+        })
+        .catch(error => {
+            alert(`❌ Could not log in. Either the user does not exist or you have entered incorrect login details.`);
+        });
+    }
+    
     
       
     // Submit Post

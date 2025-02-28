@@ -12,8 +12,6 @@ public class Database_Controller{
     }
 
     public boolean checkIfUserExists(String username, String password){
-        System.out.println("hellooooo");
-        String url = getURL();
         String name = getUsername();
         String sqlpassword = getpassword();
         int number = -1;
@@ -21,30 +19,47 @@ public class Database_Controller{
         try (Connection con = DriverManager.getConnection(
             "jdbc:postgresql://pgserver.mau.se:5432/" + name, name, sqlpassword);
 
-         CallableStatement callableStatement = con.prepareCall("{ ? = call checkIfExists(?) }")) {
+        CallableStatement callableStatement = con.prepareCall("{ ? = call checkIfExists(?) }")) {
         callableStatement.registerOutParameter(1, Types.INTEGER);
         callableStatement.setString(2, username);
         callableStatement.execute();
 
         number = callableStatement.getInt(1);
 
-        if(number == 0){
-            System.out.println("jag är inne här mannen");
+        if(number == 1){
+            System.out.println("database_controller: jag är inne här mannen");
             return true;
+        } else if(number == 0){
+            return false;
         }
 
         callableStatement.close();
         con.close();
         return false;
 
-
     } catch (SQLException e) {
-        System.out.println("det blev error");
         e.printStackTrace();
     }
         
         return false;
     }
+
+    public void signUpUser(String username, String password){
+        try (Connection con = DriverManager.getConnection(
+                "jdbc:postgresql://pgserver.mau.se:5432/al4470", "al4470", "og3en2x5");
+
+            CallableStatement callableStatement = con.prepareCall("call registerUser(?, ?)")) {
+            callableStatement.setString(1, username);
+            callableStatement.setString(2, password);
+            callableStatement.executeUpdate();
+            callableStatement.close();
+            con.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public String getURL(){
         Dotenv dotenv = Dotenv.configure()

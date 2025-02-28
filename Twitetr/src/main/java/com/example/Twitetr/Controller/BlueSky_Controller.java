@@ -2,6 +2,10 @@ package com.example.Twitetr.Controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.coyote.AbstractProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Rsocket;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -146,23 +151,62 @@ public class BlueSky_Controller {
         System.out.println("JSON file created successfully with text: " + text);
     }
 
-
-     /**
-     * Endpoint för att validera och korrigera text.
-     * Den kontrollerar längd, förbjudna tecken och tomma texter.
-     *
-     * @param userInput Användarens text som JSON.
-     * @return ResponseEntity med eventuella korrigeringar eller felmeddelanden.
-     */
-
      @PostMapping("/login-info")
-     public void loginInfo(@RequestBody HashMap<String, String> userInput){
+     public boolean loginInfo(@RequestBody HashMap<String, String> userInput){
         String name = userInput.get("userName");
         String password = userInput.get("password");
 
         Database_Controller controller = new Database_Controller(this);
         boolean exists = controller.checkIfUserExists(name, password);
 
+        if(exists){
+            saveUserInfoInENV(name, password);
+            return true;
+        }
+
+        return false;
+     }
+
+     @PostMapping("/signin-info")
+     public boolean signIn(@RequestBody HashMap<String, String> userInput){
+        String name = userInput.get("userName");
+        String password = userInput.get("password");
+
+        Database_Controller controller = new Database_Controller(this);
+        boolean exists = controller.checkIfUserExists(name, password);
+
+        if(exists){
+            return false;
+        } else{
+            controller.signUpUser(name, password);
+            return true;
+        }
+
+     }
+
+     public void saveUserInfoInENV(String name, String password){
+        try {
+            ArrayList<String> envLines = (ArrayList<String>) Files.readAllLines(Paths.get(".env"));
+            ArrayList<String> updatedFile = new ArrayList<>();
+
+            for(int i = 0; i < envLines.size(); i++){
+                String line = envLines.get(i);
+
+                if(line.startsWith("BLUESKY_USERNAME")){
+                    updatedFile.add("BLUESKY_USERNAME=" + name);
+                } else if(line.startsWith("BLUESKY_PASSWORD")){
+                    updatedFile.add("BLUESKY_PASSWORD=" + password);
+                } else{
+                    updatedFile.add(line);
+                }
+
+            }
+
+            Files.write(Paths.get(".env"), updatedFile, StandardOpenOption.TRUNCATE_EXISTING);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
      }
 
     @PostMapping("/manage-text")
