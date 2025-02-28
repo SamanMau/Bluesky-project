@@ -1,9 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.getElementById("loginForm");
+    const signInForm = document.getElementById("signinForm");
 
     if (loginForm) {
         loginForm.addEventListener("submit", sendLoginInfo);
         return; // Stoppa exekvering av resten av koden om vi är på login-sidan
+    }
+
+    if(signInForm){
+        alert("hello");
+        signInForm.addEventListener("submitt", sendSigninInfo);
+        return;
     }
     
     

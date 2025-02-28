@@ -169,6 +169,7 @@ public class BlueSky_Controller {
 
      @PostMapping("/signin-info")
      public boolean signIn(@RequestBody HashMap<String, String> userInput){
+        System.out.println("HEEELLLOOOO");
         String name = userInput.get("userName");
         String password = userInput.get("password");
 
