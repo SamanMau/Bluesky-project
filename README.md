@@ -85,7 +85,7 @@ BLUESKY-PROJECT/
 │   │   │   │   │   │   └── styles.css           # Ytterligare stildefinitioner.
 │   │   │   │   │   ├── js/
 │   │   │   │   │   │   └── app.js               # JavaScript-logik för frontend.
-│   │   │   │   │   └── index.html               # Huvudsida för frontend.
+│   │   │   │   │   └── login.html               # Login sida för frontend.
 │   │   │   │   └── application.properties       # Konfiguration för Spring Boot-applikationen.
 │   │   └── test/          # Tester för applikationen.
 │   │       └── java/com/example/Twitter/
@@ -190,21 +190,21 @@ To run the Bluesky project, ensure the following are installed on your system:
 
 #### File Navigations (if you were not to find the file pathways):
 - Java Main Class (TwitetrApplication.java): src/main/java/TwitterApplication.java
-- HTML file: src/main/resources/static/index.html
+- HTML file: src/main/resources/static/login.html
 - Configuration file: ./pom.xml
 
 ---
 
 ### Usage of the Application
 1. Open **VS Code** and navigate to the project folder in it.
-2. **Start the Mashup Service**
+2. **Run the HTML application:**
+    - Open `login.html` in VS Code.
+    - Path to file: ```src/main/resources/static/login.html```
+    - Click the "**Go Live**"- button in the **bottom-right corner of VS Code** (requires the *Live Server Extension*!).
+3. **Start the Mashup Service**
     - Run the backend `TwitetrApplication.java` class (press the button "**Run**" below the classname).
     - Path to class: ```src/main/java/TwitterApplication.java```
-3. **Run the HTML application:**
-    - Open `index.html` in VS Code.
-    - Path to file: ```src/main/resources/static/index.html```
-    - Click the "**Go Live**"- button in the **bottom-right corner of VS Code** (requires the *Live Server Extension*!).
-4. **Using the Application:**
+5. **Using the Application:**
     - Write your text in the input box labeled "Write your post here....".
     - Click on the button "**Check Spelling**" to analyze and correct errors by getting spelling suggestions under the "Suggestions:"-field.
     - Accept the suggestion (if there's any spelling errors).
