@@ -19,15 +19,15 @@ public class Database_Controller{
         try (Connection con = DriverManager.getConnection(
             "jdbc:postgresql://pgserver.mau.se:5432/" + name, name, sqlpassword);
 
-        CallableStatement callableStatement = con.prepareCall("{ ? = call checkIfExists(?) }")) {
+        CallableStatement callableStatement = con.prepareCall("{ ? = call checkIfExists(?, ?) }")) {
         callableStatement.registerOutParameter(1, Types.INTEGER);
         callableStatement.setString(2, username);
+        callableStatement.setString(3, password);
         callableStatement.execute();
 
         number = callableStatement.getInt(1);
 
         if(number == 1){
-            System.out.println("database_controller: jag är inne här mannen");
             return true;
         } else if(number == 0){
             return false;
