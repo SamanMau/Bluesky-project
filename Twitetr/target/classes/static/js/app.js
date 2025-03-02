@@ -19,30 +19,18 @@ const submitButton = document.getElementById('submit-button');
 const replaceButton = document.getElementById('replace-text');
 const suggestionsContainer = document.querySelector('.suggestions');
 
-<<<<<<< HEAD
-// Uppdaterar teckenräknaren och aktiverar/inaktiverar sänd-knappen
-=======
 // Hide "Replace" button by default
 replaceButton.style.display = 'none';
 
 // Update character counter and enable/disable submit button
->>>>>>> Backend_karam_ny
 quill.on('text-change', () => {
     const text = quill.getText().trim();
     charCounter.textContent = `${text.length} / 300`;
     submitButton.disabled = text.length === 0;
 });
 
-<<<<<<< HEAD
-
-
-// Validerar textinput innan det skickas till backend
-function validateTextInput(text) {
-
-=======
 // Validate text input before sending to backend
 function validateTextInput(text, action) {
->>>>>>> Backend_karam_ny
     if (!text || text.trim().length === 0) {
         if (action === 'check-spelling') {
             alert('⚠ Please write something before checking your spelling.');
@@ -75,11 +63,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-<<<<<<< HEAD
-        // Standardspråket är svenska
-=======
         // Default language is Swedish
->>>>>>> Backend_karam_ny
         body: JSON.stringify({ userText: text, language: 'sv' }),
     })
         .then(response => {
@@ -119,11 +103,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         })
         .catch(error => {
             console.error('Error during fetch:', error);
-<<<<<<< HEAD
-            alert(`Error: ${error.message}`); 
-=======
             alert(`Error: ${error.message}`); // Display backend error in alert
->>>>>>> Backend_karam_ny
         });
 });
 
@@ -156,10 +136,6 @@ submitButton.addEventListener('click', async (e) => {
 
     const text = quill.getText().trim();
 
-<<<<<<< HEAD
-    if (!validateTextInput(text)) {
-        return; 
-=======
     if (text.length === 0) {
         alert('⚠ Please write something before submitting.');
         return; // Stop submission if text is empty
@@ -168,7 +144,6 @@ submitButton.addEventListener('click', async (e) => {
     // Validate text before submission
     if (!validateTextInput(text, 'submit')) {
         return; // Stop submission if text is too long or empty
->>>>>>> Backend_karam_ny
     }
 
     try {
@@ -180,10 +155,6 @@ submitButton.addEventListener('click', async (e) => {
             body: JSON.stringify({ userText: text }),
         });
 
-<<<<<<< HEAD
-        // Kontrollera om responsen är OK
-=======
->>>>>>> Backend_karam_ny
         if (!response.ok) {
             const errorResponse = await response.json();
             console.error("Publish Error Response:", errorResponse);
@@ -191,27 +162,15 @@ submitButton.addEventListener('click', async (e) => {
             return;
         }
 
-<<<<<<< HEAD
-        // Tolka JSON-responsen
         const data = await response.json();
         console.log("Response from /post-text:", data);
 
-        // Hantera framgång eller oväntad respons
-=======
-        const data = await response.json();
-        console.log("Response from /post-text:", data);
-
->>>>>>> Backend_karam_ny
         if (data.status === "success") {
             alert(`✅ Success: ${data.message}`);
         } else {
             alert(`❌ Error: ${data.message}`);
         }
     } catch (error) {
-<<<<<<< HEAD
-        // Logga nätverksfel eller oväntade problem
-=======
->>>>>>> Backend_karam_ny
         console.error("Error during publish:", error);
         alert(`🚨 A network or server error occurred: ${error.message || "Unknown error"}`);
     }
