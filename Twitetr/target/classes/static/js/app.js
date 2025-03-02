@@ -1,177 +1,194 @@
-// Initialiserar Quill.js-redigeraren
-const quill = new Quill('#editor', {
-    theme: 'snow',
-    placeholder: 'Write your post here...',
-    modules: {
-        toolbar: [
-            [{ header: [1, 2, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            ['link', 'image'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            ['clean'],
-        ],
-    },
-});
+document.addEventListener("DOMContentLoaded", function () {
+    const loginForm = document.getElementById("loginForm");
+    const signInForm = document.getElementById("signinForm");
 
-// Referenser till HTML-element
-const charCounter = document.getElementById('char-counter');
-const submitButton = document.getElementById('submit-button');
-const replaceButton = document.getElementById('replace-text');
-const suggestionsContainer = document.querySelector('.suggestions');
-
-// Hide "Replace" button by default
-replaceButton.style.display = 'none';
-
-// Update character counter and enable/disable submit button
-quill.on('text-change', () => {
-    const text = quill.getText().trim();
-    charCounter.textContent = `${text.length} / 300`;
-    submitButton.disabled = text.length === 0;
-});
-
-// Validate text input before sending to backend
-function validateTextInput(text, action) {
-    if (!text || text.trim().length === 0) {
-        if (action === 'check-spelling') {
-            alert('⚠ Please write something before checking your spelling.');
-        } else {
-            alert('⚠ Please write something before submitting your text.');
-        }
-        return false;
+    if (loginForm) {
+        loginForm.addEventListener("submit", sendLoginInfo);
     }
 
-    if (text.length > 300) {
-        if (action === 'check-spelling') {
-            alert('🚨 Error: Your text exceeds the limit of 300 characters. Please shorten it before checking your spelling.');
-        } else {
-            alert('🚨 Error: Your text exceeds the limit of 300 characters. Please shorten it before submitting.');
+    if(signInForm){
+        signInForm.addEventListener("submit", sendSigninInfo);
+        return;
+    }
+    
+    
+    const signOutButton = document.getElementById("signOutForm");
+    const editor = document.getElementById("editor");
+    const charCounter = document.getElementById("char-counter");
+    const checkSpellingButton = document.querySelector(".check-spelling");
+    const replaceButton = document.getElementById("replace-text");
+    const submitButton = document.getElementById("submit-button");
+    const suggestionsContainer = document.querySelector(".suggestions");
+
+    // Hide "Replace With New Text" button by default
+    replaceButton.style.display = "none";
+
+    signOutButton.addEventListener("submit", signOut);
+
+    // Character counter update
+    editor.addEventListener("input", function () {
+        const textLength = editor.value.trim().length;
+        charCounter.textContent = `${textLength} / 300`;
+
+        // Enable or disable submit button
+        submitButton.disabled = textLength === 0 || textLength > 300;
+    });
+
+    // Validate text input
+    function validateTextInput(text, action) {
+        if (!text || text.trim().length === 0) {
+            alert(`⚠ Please write something before ${action}.`);
+            return false;
         }
-        return false;
+
+        if (text.length > 300) {
+            alert(`🚨 Your text exceeds the limit of 300 characters. Please shorten it before ${action}.`);
+            return false;
+        }
+
+        return true;
     }
 
-    return true;
-}
+    // Check Spelling
+    checkSpellingButton.addEventListener("click", () => {
+        const text = editor.value.trim();
 
-// Hanterar stavningskontroll
-document.querySelector('.check-spelling').addEventListener('click', () => {
-    const text = quill.getText().replace(/\n/g, '').trim(); 
+        if (!validateTextInput(text, "checking your spelling")) return;
 
-    if (!validateTextInput(text, 'check-spelling')) return;
-
-    fetch('http://127.0.0.1:8080/api/text/manage-text', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        // Default language is Swedish
-        body: JSON.stringify({ userText: text, language: 'sv' }),
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
+        fetch("http://127.0.0.1:8080/api/text/text-validation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userText: text, language: "sv" }),
         })
-        .then(data => {
-            console.log("Response from /manage-text: ", data);
-            if (data.originalText && data.correctedText) {
-                suggestionsContainer.innerHTML = `
-                    <h3>Original Text:</h3>
-                    <p>${data.originalText}</p>
-                    <h3>Corrected Text:</h3>
-                    <p class="clickable-suggestion" style="cursor: pointer; color: black; text-decoration: none;">${data.correctedText}</p>
-                `;
+            .then(response => response.json())
+            .then(data => {
+                if (data.originalText && data.correctedText) {
+                    suggestionsContainer.innerHTML = `
+                        <h3>Original Text:</h3>
+                        <p>${data.originalText}</p>
+                        <h3>Corrected Text:</h3>
+                        <p class="clickable-suggestion" style="cursor: pointer; color: black;">${data.correctedText}</p>
+                    `;
 
-                const suggestionElement = document.querySelector('.clickable-suggestion');
-                suggestionElement.addEventListener('click', () => {
-                    quill.setText(data.correctedText); 
-                    console.log("Text updated to:", data.correctedText);
+                    const suggestionElement = document.querySelector(".clickable-suggestion");
+                    suggestionElement.addEventListener("click", () => {
+                        editor.value = data.correctedText;
+                        charCounter.textContent = `${data.correctedText.length} / 300`;
+                        submitButton.disabled = data.correctedText.length === 0 || data.correctedText.length > 300;
+                    });
 
-                    const updatedText = quill.getText().trim();
-                    charCounter.textContent = `${updatedText.length} / 300`;
-                    submitButton.disabled = updatedText.length === 0 || updatedText.length > 300;
-                });
+                    // Show "Replace With New Text" button
+                    replaceButton.style.display = "block";
+                } else {
+                    suggestionsContainer.innerHTML = `<h3>No Corrections Found:</h3><p>${data.message || "No spelling errors detected."}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Error processing the request.");
+            });
+    });
 
-                // Enable and show "Replace With New Text" button
-                replaceButton.style.display = 'block';
-                replaceButton.disabled = false;
-            } else if (data.message) {
-                suggestionsContainer.innerHTML = `<h3>No Corrections Found:</h3><p>${data.message}</p>`;
-            } else if (data.invalid) {
-                suggestionsContainer.innerHTML = `<h3>Error:</h3><p>${data.invalid}</p>`;
+    // Replace Button functionality
+    replaceButton.addEventListener("click", () => {
+        const correctedTextElement = document.querySelector(".clickable-suggestion");
+        if (correctedTextElement) {
+            editor.value = correctedTextElement.textContent.trim();
+            charCounter.textContent = `${editor.value.length} / 300`;
+            submitButton.disabled = editor.value.length === 0 || editor.value.length > 300;
+        }
+    });
+
+    function signOut(event){
+        event.preventDefault();
+        window.location.href = "login.html";
+    }
+
+    function sendLoginInfo(event) {
+        event.preventDefault();
+    
+        const username = document.getElementById("logInUsername").value;
+        const password = document.getElementById("logInPassword").value;
+    
+        fetch("http://127.0.0.1:8080/api/text/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userName: username,
+                password: password
+            })
+        })
+        .then(response => response.text())
+        .then(text => {
+
+            // konvertera texten "true" eller "false" till en riktig boolean
+            const isSuccess = text.trim() === "true";
+    
+            if (isSuccess) {
+                window.location.href = "index.html";
+                alert("💻 Log in successful. Press ok");
+            } else {
+                alert(`❌ Could not log in. Either the user does not exist or you have entered incorrect login details.`);
             }
         })
         .catch(error => {
-            console.error('Error during fetch:', error);
-            alert(`Error: ${error.message}`); // Display backend error in alert
+            alert(`❌ Could not log in. Either the user does not exist or you have entered incorrect login details.`);
         });
-});
-
-// Handle Replace Button
-replaceButton.addEventListener('click', () => {
-    const correctedTextElement = document.querySelector('.clickable-suggestion');
-
-    if (correctedTextElement) {
-        const correctedText = correctedTextElement.textContent.trim();
-
-        if (correctedText) {
-            quill.setText(correctedText); // Replace text in editor
-            console.log("Text replaced with corrected version:", correctedText);
-
-            // Update character counter
-            const updatedText = quill.getText().trim();
-            charCounter.textContent = `${updatedText.length} / 300`;
-            submitButton.disabled = updatedText.length === 0 || updatedText.length > 300;
-        } else {
-            alert("⚠ No corrected text available.");
-        }
-    } else {
-        alert("⚠ No corrected text available.");
-    }
-});
-
-// Hanterar sänd-knappen
-submitButton.addEventListener('click', async (e) => {
-    e.preventDefault(); 
-
-    const text = quill.getText().trim();
-
-    if (text.length === 0) {
-        alert('⚠ Please write something before submitting.');
-        return; // Stop submission if text is empty
     }
 
-    // Validate text before submission
-    if (!validateTextInput(text, 'submit')) {
-        return; // Stop submission if text is too long or empty
-    }
+    function sendSigninInfo(event) {
+        event.preventDefault();
+    
+        const username = document.getElementById("signInUsername").value;
+        const password = document.getElementById("signInPassword").value;
+    
+        fetch("http://127.0.0.1:8080/api/text/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userName: username,
+                password: password
+            })
+        })
+        .then(response => response.text())
+        .then(text => {
 
-    try {
-        const response = await fetch('http://127.0.0.1:8080/api/text/post-text', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userText: text }),
+            // konvertera texten "true" eller "false" till en riktig boolean
+            const isSuccess = text.trim() === "true";
+    
+            if (isSuccess) {
+                window.location.href = "index.html";
+                alert("💻 Account created successfully");
+            } else {
+                alert(`❌ The email is already in use.`);
+            }
+        })
+        .catch(error => {
+            alert(`❌ Could not log in. Either the user does not exist or you have entered incorrect login details.`);
         });
-
-        if (!response.ok) {
-            const errorResponse = await response.json();
-            console.error("Publish Error Response:", errorResponse);
-            alert(errorResponse.message || "Unknown error occurred.");
-            return;
-        }
-
-        const data = await response.json();
-        console.log("Response from /post-text:", data);
-
-        if (data.status === "success") {
-            alert(`✅ Success: ${data.message}`);
-        } else {
-            alert(`❌ Error: ${data.message}`);
-        }
-    } catch (error) {
-        console.error("Error during publish:", error);
-        alert(`🚨 A network or server error occurred: ${error.message || "Unknown error"}`);
     }
+    
+    
+      
+    // Submit Post
+    submitButton.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const text = editor.value.trim();
+
+        if (!validateTextInput(text, "submitting")) return;
+
+        try {
+            const response = await fetch("http://127.0.0.1:8080/api/text/texts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userText: text }),
+            });
+
+            const data = await response.json();
+            alert(data.status === "success" ? `✅ Success: ${data.message}` : `❌ Error: ${data.message}`);
+        } catch (error) {
+            console.error("Error:", error);
+            alert("🚨 A network or server error occurred.");
+        }
+    });
 });

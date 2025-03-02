@@ -2,6 +2,10 @@ package com.example.Twitetr.Controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.coyote.AbstractProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Rsocket;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -81,7 +86,6 @@ public class BlueSky_Controller {
         return response;
     }
 
-
      /**
      * Endpoint för att skicka text till Bluesky API.
      * Den hanterar inloggning, publicering och felhantering.
@@ -90,7 +94,7 @@ public class BlueSky_Controller {
      * @return ResponseEntity med status och svar från servern.
      */
     
-    @PostMapping("/post-text")
+    @PostMapping("/texts")
     public ResponseEntity<HashMap<String, Object>> postText(@RequestBody Map<String, String> userInput) {
         String text = userInput.get("userText");
         HashMap<String, Object> response = new HashMap<>();
@@ -124,16 +128,86 @@ public class BlueSky_Controller {
         }
     }
 
-
      /**
-     * Endpoint för att validera och korrigera text.
-     * Den kontrollerar längd, förbjudna tecken och tomma texter.
+     * Skapar en JSON-fil av den givna texten.
      *
-     * @param userInput Användarens text som JSON.
-     * @return ResponseEntity med eventuella korrigeringar eller felmeddelanden.
+     * @param text Texten att lagra i JSON-filen.
+     * @throws IOException Om filen inte kan skapas.
      */
 
-    @PostMapping("/manage-text")
+    private void createJSONFile(String text) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        File file = new File("userText.json");
+
+        // Lagra texten som en nyckel-värde-pair i filen
+        Map<String, String> data = new HashMap<>();
+        data.put("userText", text);
+
+        // Skriv datan till fil
+        objectMapper.writeValue(file, data);
+        System.out.println("JSON file created successfully with text: " + text);
+    }
+
+     @PostMapping("/session")
+     public boolean loginInfo(@RequestBody HashMap<String, String> userInput){
+        String name = userInput.get("userName");
+        String password = userInput.get("password");
+
+        Database_Controller controller = new Database_Controller(this);
+        boolean exists = controller.checkIfUserExists(name, password);
+
+        if(exists){
+            saveUserInfoInENV(name, password);
+            return true;
+        }
+
+        return false;
+     }
+
+     @PostMapping("/users")
+     public boolean signIn(@RequestBody HashMap<String, String> userInput){
+        String name = userInput.get("userName");
+        String password = userInput.get("password");
+
+        Database_Controller controller = new Database_Controller(this);
+        boolean exists = controller.checkIfUserExists(name, password);
+
+        if(exists){
+            return false;
+        } else{
+            controller.signUpUser(name, password);
+            saveUserInfoInENV(name, password);
+            return true;
+        }
+
+     }
+
+     public void saveUserInfoInENV(String name, String password){
+        try {
+            ArrayList<String> envLines = (ArrayList<String>) Files.readAllLines(Paths.get(".env"));
+            ArrayList<String> updatedFile = new ArrayList<>();
+
+            for(int i = 0; i < envLines.size(); i++){
+                String line = envLines.get(i);
+
+                if(line.startsWith("BLUESKY_USERNAME")){
+                    updatedFile.add("BLUESKY_USERNAME=" + name);
+                } else if(line.startsWith("BLUESKY_PASSWORD")){
+                    updatedFile.add("BLUESKY_PASSWORD=" + password);
+                } else{
+                    updatedFile.add(line);
+                }
+
+            }
+
+            Files.write(Paths.get(".env"), updatedFile, StandardOpenOption.TRUNCATE_EXISTING);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+     }
+
+    @PostMapping("/text-validation")
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
         HashMap<String, String> response = new HashMap<>();
         String userText = userInput.get("userText");
