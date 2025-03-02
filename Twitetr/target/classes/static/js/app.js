@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!validateTextInput(text, "checking your spelling")) return;
 
-        fetch("http://127.0.0.1:8080/api/text/manage-text", {
+        fetch("http://127.0.0.1:8080/api/text/text-validation", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userText: text, language: "sv" }),
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const username = document.getElementById("logInUsername").value;
         const password = document.getElementById("logInPassword").value;
     
-        fetch("http://127.0.0.1:8080/api/text/login-info", {
+        fetch("http://127.0.0.1:8080/api/text/session", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const username = document.getElementById("signInUsername").value;
         const password = document.getElementById("signInPassword").value;
     
-        fetch("http://127.0.0.1:8080/api/text/signin-info", {
+        fetch("http://127.0.0.1:8080/api/text/users", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!validateTextInput(text, "submitting")) return;
 
         try {
-            const response = await fetch("http://127.0.0.1:8080/api/text/post-text", {
+            const response = await fetch("http://127.0.0.1:8080/api/text/texts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userText: text }),

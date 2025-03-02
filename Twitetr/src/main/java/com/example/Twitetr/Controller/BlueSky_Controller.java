@@ -94,7 +94,7 @@ public class BlueSky_Controller {
      * @return ResponseEntity med status och svar från servern.
      */
     
-    @PostMapping("/post-text")
+    @PostMapping("/texts")
     public ResponseEntity<HashMap<String, Object>> postText(@RequestBody Map<String, String> userInput) {
         String text = userInput.get("userText");
         HashMap<String, Object> response = new HashMap<>();
@@ -151,7 +151,7 @@ public class BlueSky_Controller {
         System.out.println("JSON file created successfully with text: " + text);
     }
 
-     @PostMapping("/login-info")
+     @PostMapping("/session")
      public boolean loginInfo(@RequestBody HashMap<String, String> userInput){
         String name = userInput.get("userName");
         String password = userInput.get("password");
@@ -167,7 +167,7 @@ public class BlueSky_Controller {
         return false;
      }
 
-     @PostMapping("/signin-info")
+     @PostMapping("/users")
      public boolean signIn(@RequestBody HashMap<String, String> userInput){
         String name = userInput.get("userName");
         String password = userInput.get("password");
@@ -210,7 +210,7 @@ public class BlueSky_Controller {
         }
      }
 
-    @PostMapping("/manage-text")
+    @PostMapping("/text-validation")
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
         HashMap<String, String> response = new HashMap<>();
         String userText = userInput.get("userText");
