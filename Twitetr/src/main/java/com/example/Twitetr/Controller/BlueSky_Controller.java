@@ -170,7 +170,7 @@ public class BlueSky_Controller {
         String password = userInput.get("password");
 
         Database_Controller controller = new Database_Controller(this);
-        boolean exists = controller.checkIfUserExists(name, password);
+        boolean exists = controller.checkIfExistsBeforeSignIn(name, password);
 
         if(exists){
             return false;
