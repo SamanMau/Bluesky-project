@@ -40,7 +40,7 @@ public class ApiAuthentication {
         HashMap<String, String> info = createSession(name, password);
 
         if(info != null){
-            String accessJwt = info.get("accessJwt");
+            String accessJwt = info.get("accessJwt"); 
             String sessionDid = info.get("sessionDid");
 
             boolean success = createPost(accessJwt, sessionDid, text);
