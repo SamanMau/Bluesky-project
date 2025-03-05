@@ -14,6 +14,11 @@
 
     <div class="container">
         <h1>Create Your Post</h1>
+        <div class="button-div">
+            <form onsubmit="signOut(event)" id="signOutForm">
+                <button type="submit" class="signout-button">Sign out</button>
+            </form>
+        </div>
         <div class="input-group">
             <textarea id="editor" placeholder="What's on your mind?"></textarea>
             <div id="char-counter"></div>
@@ -28,13 +33,6 @@
         </div>
         <!-- Flyttad knapp hit -->
         <button id="replace-text" class="replace-text" style="display: none;">Replace With New Text</button>
-    </div>
-
-    <div class="button-div">
-
-        <form onsubmit="signOut(event)" id="signOutForm">
-            <button type="submit" class ="signout-button">Sign out</button>
-        </form>
     </div>
 
     </script>

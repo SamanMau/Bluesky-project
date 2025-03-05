@@ -19,34 +19,39 @@
 
     </div>
 
-    <div class="loginCredentials">
-        <h2>Log in</h2>
+    <div class="auth-container">
+        <div class="loginCredentials">
+            <h2>Log in</h2>
 
-        <form onsubmit="sendLoginInfo(event)" id="loginForm">
-            <input type="text" class ="loginNameInput" placeholder="Username..."  id="logInUsername" required />
+            <form onsubmit="sendLoginInfo(event)" id="loginForm">
+                <input type="text" class="loginNameInput" placeholder="Username..." id="logInUsername" required />
 
-            <input type="password" class ="loginPasswordInput" placeholder="Password..."  id="logInPassword" required />
+                <input type="password" class="loginPasswordInput" placeholder="Password..." id="logInPassword"
+                    required />
 
-            <button type="submit" id="submit-button" class="logIn">Log in</button>
-        </form>
-    </div>
+                <button type="submit" id="submit-button" class="logIn">Log in</button>
+            </form>
+        </div>
 
-    <div class="signUpCredentials">
-        <h2>Sign up</h2>
+        <div class="signUpCredentials">
+            <h2>Sign up</h2>
 
-        <form onsubmit="sendSigninInfo(event)" id="signinForm">
-            <input type="text" id="signInUsername" class="username" placeholder="Username..." required />
+            <form onsubmit="sendSigninInfo(event)" id="signinForm">
+                <input type="text" id="signInUsername" class="username" placeholder="Username..." required />
 
-            <input type="password" id="signInPassword" class="password" placeholder="Password..." required />
-    
-            <button type="submit" class="signIn">Sign up</button>
-        </form>
+                <input type="password" id="signInPassword" class="password" placeholder="Password..." required />
+
+                <button type="submit" class="signIn">Sign up</button>
+            </form>
+        </div>
     </div>
 
     <div class="warning-div">
         <p class="warning-symbol">⚠️</p>
-        <h4>When creating your account, you need to use the exact same username and password you use when logging into bluesky</h4>
-        <h4>It is not possible to use this mashup service without the exact same account credentials as your bluesky account</h4>
+        <h4>When creating your account, you need to use the exact same username and password you use when logging into
+            bluesky</h4>
+        <h4>It is not possible to use this mashup service without the exact same account credentials as your bluesky
+            account</h4>
         <h4>To create a bluesky account, click <a href="https://bsky.app/" target="_blank">here</a></h4>
 
     </div>
