@@ -149,7 +149,7 @@ public class BlueSky_Controller {
     }
 
      @PostMapping("/session")
-     public boolean loginInfo(@RequestBody HashMap<String, String> userInput){
+     public boolean logIn(@RequestBody HashMap<String, String> userInput){
         String name = userInput.get("userName");
         String password = userInput.get("password");
 

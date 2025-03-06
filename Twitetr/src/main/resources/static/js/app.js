@@ -1,13 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.getElementById("loginForm");
-    const signInForm = document.getElementById("signinForm");
+    const signUpForm = document.getElementById("signupForm");
 
     if (loginForm) {
         loginForm.addEventListener("submit", sendLoginInfo);
     }
 
-    if(signInForm){
-        signInForm.addEventListener("submit", sendSigninInfo);
+    if(signUpForm){
+        signUpForm.addEventListener("submit", sendSignupInfo);
         return;
     }
     
@@ -136,11 +136,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function sendSigninInfo(event) {
+    function sendSignupInfo(event) {
         event.preventDefault();
     
-        const username = document.getElementById("signInUsername").value;
-        const password = document.getElementById("signInPassword").value;
+        const username = document.getElementById("signupUsername").value;
+        const password = document.getElementById("signupPassword").value;
     
         fetch("http://127.0.0.1:8080/api/text/users", {
             method: "POST",
