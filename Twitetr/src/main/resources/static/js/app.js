@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const username = document.getElementById("logInUsername").value;
         const password = document.getElementById("logInPassword").value;
     
-        fetch("http://127.0.0.1:8080/api/text/session", {
+        fetch("http://127.0.0.1:8080/api/text/sessions", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

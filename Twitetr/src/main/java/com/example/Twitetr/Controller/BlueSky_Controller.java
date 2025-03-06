@@ -148,7 +148,7 @@ public class BlueSky_Controller {
         System.out.println("JSON file created successfully with text: " + text);
     }
 
-     @PostMapping("/session")
+     @PostMapping("/sessions")
      public boolean logIn(@RequestBody HashMap<String, String> userInput){
         String name = userInput.get("userName");
         String password = userInput.get("password");
