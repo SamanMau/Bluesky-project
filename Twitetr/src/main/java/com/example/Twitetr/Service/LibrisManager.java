@@ -11,30 +11,38 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/*
+ * Den här klassen ansvarar för att kommunicera med LIBRIS API. Ett objekt av
+ * klassen skapas i Bluesky_Controller. Variabeln "LIBRIS_API_URL" är en bas URL
+ * som anger att data ska returneras i JSON format.
+ */
 @Service
 public class LibrisManager {
+    //URL för anrop av API:et. hämtats från api.libris.kb.se/bibspell/#.
     private static final String LIBRIS_API_URL = "http://api.libris.kb.se/bibspell/spell?query=%s&key=%s&format=json";
-    //hej
 
      /*
-      * Skickar en förfrågan till LIBRIS API för att kontrollera stavningen av användarens text.
+      * Metoden skickar en förfrågan till LIBRIS API för att kontrollera stavningen av användarens text.
       Det som returneras är en hashmap.
       */
     public HashMap<String, String> checkSpelling(String userInput) {
         RestTemplate restTemplate = new RestTemplate();
         HashMap<String, String> responseMap = new HashMap<>();
         String key = getKey();
+        System.out.println("Userinput: " + userInput);
         String URL = String.format(LIBRIS_API_URL, URLEncoder.encode(userInput, StandardCharsets.UTF_8), key);
         String correctedWord = "";
+        System.out.println("Genererad URL: " + URL);
 
-        try {
-            // skicka get-förfrågan till libris
-            ResponseEntity<String> response = restTemplate.getForEntity(URL, String.class);
-            String result = response.getBody();
+        try {              
+             //skicka get-förfrågan till libris och returnerar svarskroppen.
+              String result = restTemplate.getForObject(URL, String.class);
+
 
             System.out.println("LIBRIS API svar: " + result);
 
@@ -46,13 +54,26 @@ public class LibrisManager {
                 Map<String, Object> suggestion = (Map<String, Object>) jsonMap.get("suggestion");
                
                 if (suggestion != null) {
+                    //terms innehåller en list av hashmaps
                     var terms = (List<Map<String, Object>>) suggestion.get("terms");
                     
                     if (terms != null && !terms.isEmpty()) {
-                        correctedWord = (String) terms.get(0).get("value");
-                        System.out.println("Här är det korrigerade ordet: " + correctedWord);
-                    } else{
-                        System.out.println("Tomt svar.");
+                     
+                        int count = 0;
+                        for (Map<String, Object> term : terms){
+                            if(term.containsKey("value")){
+                                count++;
+                            }
+                        }
+                //Detta skulle indikera att det sannolikt har gått fel, exempelvis att ordet "glömde" genererar "GL C3 MDE" vilket är 3 values.
+                // I detta fall, behåller vi användarens ursprungliga ord.
+
+                        if(count > 1){
+                            correctedWord = userInput;
+                        }
+                        else {
+                            correctedWord = (String) terms.get(0).get("value");
+                        }
                     }
                     
                 } else{

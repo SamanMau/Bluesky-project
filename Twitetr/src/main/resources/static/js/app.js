@@ -1,4 +1,4 @@
-// Initialiserar Quill.js-redigeraren
+// Initialize Quill.js editor
 const quill = new Quill('#editor', {
     theme: 'snow',
     placeholder: 'Write your post here...',
@@ -13,13 +13,13 @@ const quill = new Quill('#editor', {
     },
 });
 
-// Referenser till HTML-element
+// Element references
 const charCounter = document.getElementById('char-counter');
 const submitButton = document.getElementById('submit-button');
 
 const suggestionsContainer = document.querySelector('.suggestions');
 
-// Uppdaterar teckenräknaren och aktiverar/inaktiverar sänd-knappen
+// Update character counter and enable/disable submit button
 quill.on('text-change', () => {
     const text = quill.getText().trim();
     charCounter.textContent = `${text.length} / 300`;
@@ -28,7 +28,7 @@ quill.on('text-change', () => {
 
 
 
-// Validerar textinput innan det skickas till backend
+// Validate text input before sending to backend
 function validateTextInput(text) {
 
     if (!text || text.trim().length === 0) {
@@ -36,15 +36,15 @@ function validateTextInput(text) {
         return false;
     }
 
-    if (text.length > 300) {
-        alert('The text exceeds the limit of 300 characters.');
-        return false;
+        if (text.length > 300) {
+            alert(`🚨 Your text exceeds the limit of 300 characters. Please shorten it before ${action}.`);
+            return false;
+        }
+
+        return true;
     }
 
-    return true;
-}
-
-// Hanterar stavningskontroll
+// Handle Check Spelling
 document.querySelector('.check-spelling').addEventListener('click', () => {
     const text = quill.getText().replace(/\n/g, '').trim(); // Remove newlines and trim whitespace
 
@@ -57,7 +57,7 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        // Standardspråket är svenska
+        // default language is Swedish
         body: JSON.stringify({ userText: text, language: 'sv' }),
     })
         .then(response => {
@@ -98,20 +98,20 @@ document.querySelector('.check-spelling').addEventListener('click', () => {
         })
         .catch(error => {
             console.error('Error during fetch:', error);
-            alert(`Error: ${error.message}`); 
+            alert(`Error: ${error.message}`); // Visa backend-meddelandet i alert
         });
 });
 
 
-// Hanterar sänd-knappen
+// Handle Submit Button
 submitButton.addEventListener('click', async (e) => {
-    e.preventDefault(); 
+    e.preventDefault(); // Prevent page reload
 
     const text = quill.getText().trim();
     
 
     if (!validateTextInput(text)) {
-        return; 
+        return; // Stop if validation fails
     }
 
     try {
@@ -123,7 +123,7 @@ submitButton.addEventListener('click', async (e) => {
             body: JSON.stringify({ userText: text }),
         });
 
-        // Kontrollera om responsen är OK
+        // Check if response is OK
         if (!response.ok) {
             const errorResponse = await response.json();
             console.error("Publish Error Response:", errorResponse);
@@ -131,18 +131,18 @@ submitButton.addEventListener('click', async (e) => {
             return;
         }
 
-        // Tolka JSON-responsen
+        // Parse JSON response
         const data = await response.json();
         console.log("Response from /post-text:", data);
 
-        // Hantera framgång eller oväntad respons
+        // Handle success or unexpected response
         if (data.status === "success") {
             alert(`Success: ${data.message}`);
         } else {
             alert(`Error: ${data.message}`);
         }
     } catch (error) {
-        // Logga nätverksfel eller oväntade problem
+        // Log network errors or unexpected issues
         console.error("Error during publish:", error);
         alert(`A network or server error occurred: ${error.message || "Unknown error"}`);
     }

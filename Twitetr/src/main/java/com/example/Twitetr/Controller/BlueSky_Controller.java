@@ -2,6 +2,10 @@ package com.example.Twitetr.Controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.coyote.AbstractProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Rsocket;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,23 +34,49 @@ public class BlueSky_Controller {
     @Autowired
     private LibrisManager libris;
 
-    // The following method checks if the text written by the user contains invalid chracthers.
-    public boolean containsInvalidCharacters(String text) {
-        String invalidCharsRegex = "[\\𖤐𐕣⁶𖤐𓃶🜏𖤐𐕣☠︎︎🗡⛧☦卐卍\"]";
+ /**
+     * Kontrollera om texten innehåller ogiltiga tecken.
+     * Regex används för att matcha mot förbjudna tecken.
+     *
+     * @param text Texten att kontrollera.
+     * @return true om ogiltiga tecken finns; false annars.
+     */
+    
+     public boolean containsInvalidCharacters(String text) {
+        String invalidCharsRegex = "[\\𖤐𐕣⁶𖤐𓃶🜏𖤐𐕣☠︎︎🗡⛧☦卐卍]";
         Pattern pattern = Pattern.compile(invalidCharsRegex);
         return pattern.matcher(text).find();
     }
 
-    //This method checks if the users input is empty.
+
+    /**
+     * Kontrollera om texten är tom eller bara innehåller mellanslag.
+     * "text.matches()" kontrollerar om texten bara innehåller osynliga tecken som \n och \t
+     * @param text Texten att kontrollera.
+     * @return true om texten är tom; false annars.
+     */
+
     public boolean checkIfEmpty(String text) {
         return text == null || text.trim().isEmpty();
     }
 
-    // This method checks if the text exceeds 300 charachters. This is the limit in Bluesky.
+  /**
+     * Kontrollera om texten överskrider 300 tecken, som är Blueskys gräns.
+     *
+     * @param text Texten att kontrollera.
+     * @return true om texten är för lång; false annars.
+     */
+
     public boolean textAboveLimit(String text) {
         return text.length() > 300;
     }
 
+     /**
+     * Mock-funktion för att simulera svar från Bluesky API.
+     *
+     * @param text Texten som skickas till API:t.
+     * @return En HashMap som innehåller en status och det mottagna meddelandet.
+     */
 
     public HashMap<String, Object> mockBlueSkyAPI(String text) {
         HashMap<String, Object> response = new HashMap<>();
@@ -55,21 +86,31 @@ public class BlueSky_Controller {
         return response;
     }
 
-
-    // Endpoint to handle text validation and processing
-    @PostMapping("/post-text")
+     /**
+     * Endpoint för att skicka text till Bluesky API.
+     * Den hanterar inloggning, publicering och felhantering.
+     *
+     * @param userInput Användarens inmatning som JSON.
+     * @return ResponseEntity med status och svar från servern.
+     */
+    
+    @PostMapping("/texts")
     public ResponseEntity<HashMap<String, Object>> postText(@RequestBody Map<String, String> userInput) {
         String text = userInput.get("userText");
         HashMap<String, Object> response = new HashMap<>();
+        
+        String replaceText = text.replace("\n", " ");
+
+
         try {
-            
-            
-            ApiAuthentication apiAuthentication = new ApiAuthentication();
 
-            boolean success = apiAuthentication.manageJWT(text);
+            // Skapa en ny instans av ApiAuthentication för inloggning
+            ApiAuthentication apiAuthentication = new ApiAuthentication(this);
 
-            createJSONFile(text);
+            // Försök att publicera text via Bluesky API
+            boolean success = apiAuthentication.manageJWT(replaceText);
             
+            // Kontrollera om publiceringen lyckades
             if (success) {
                 response.put("status", "success");
                 response.put("message", "Text successfully published.");
@@ -87,59 +128,146 @@ public class BlueSky_Controller {
         }
     }
 
-
-    private boolean publishToBlueSky(String text) {
-        System.out.println("Publishing text to BlueSky: " + text);
-        return true; 
-    }
+     /**
+     * Skapar en JSON-fil av den givna texten.
+     *
+     * @param text Texten att lagra i JSON-filen.
+     * @throws IOException Om filen inte kan skapas.
+     */
 
     private void createJSONFile(String text) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         File file = new File("userText.json");
 
-
+        // Lagra texten som en nyckel-värde-pair i filen
         Map<String, String> data = new HashMap<>();
         data.put("userText", text);
 
-
+        // Skriv datan till fil
         objectMapper.writeValue(file, data);
         System.out.println("JSON file created successfully with text: " + text);
     }
 
+     @PostMapping("/sessions")
+     public boolean logIn(@RequestBody HashMap<String, String> userInput){
+        String name = userInput.get("userName");
+        String password = userInput.get("password");
 
-    @PostMapping("/manage-text")
+        Database_Controller controller = new Database_Controller(this);
+        boolean exists = controller.checkIfUserExists(name, password);
+
+        if(exists){
+            saveUserInfoInENV(name, password);
+            return true;
+        }
+
+        return false;
+     }
+
+     @PostMapping("/users")
+     public boolean signUp(@RequestBody HashMap<String, String> userInput){
+        String name = userInput.get("userName");
+        String password = userInput.get("password");
+
+        Database_Controller controller = new Database_Controller(this);
+        boolean exists = controller.checkIfExistsBeforeSignIn(name, password);
+
+        if(exists){
+            return false;
+        } else{
+            controller.signUpUser(name, password);
+            saveUserInfoInENV(name, password);
+            return true;
+        }
+
+     }
+
+     public void saveUserInfoInENV(String name, String password){
+        try {
+            ArrayList<String> envLines = (ArrayList<String>) Files.readAllLines(Paths.get(".env"));
+            ArrayList<String> updatedFile = new ArrayList<>();
+
+            for(int i = 0; i < envLines.size(); i++){
+                String line = envLines.get(i);
+
+                if(line.startsWith("BLUESKY_USERNAME")){
+                    updatedFile.add("BLUESKY_USERNAME=" + name);
+                } else if(line.startsWith("BLUESKY_PASSWORD")){
+                    updatedFile.add("BLUESKY_PASSWORD=" + password);
+                } else{
+                    updatedFile.add(line);
+                }
+
+            }
+
+            Files.write(Paths.get(".env"), updatedFile, StandardOpenOption.TRUNCATE_EXISTING);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+     }
+
+    @PostMapping("/text-validation")
     public ResponseEntity<HashMap<String, String>> manageText(@RequestBody HashMap<String, String> userInput) {
         HashMap<String, String> response = new HashMap<>();
         String userText = userInput.get("userText");
         
+        // Kontrollera om texten är för lång
         if (textAboveLimit(userText)) {
+            System.out.println("above limit");
             response.put("invalid", "The text exceeds 300 characters.");
             return ResponseEntity.badRequest().body(response);
          }
+        // Kontrollera om texten innehåller förbjudna tecken
           if (containsInvalidCharacters(userText)) {
+            System.out.println("invalid characters");
             response.put("invalid", "Error: The text contains forbidden characters.");
             return ResponseEntity.badRequest().body(response);
-        } if(checkIfEmpty(userText)){
-            response.put("invalid", "The text is empty");
-            return ResponseEntity.badRequest().body(response);
-
         }
 
+        // Kontrollera om texten är tom
+        if(checkIfEmpty(userText)){
+            response.put("invalid", "The text is empty");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        // Korrigera stavfel med hjälp av LibrisManager
         String[] words = userText.split(" ");
         StringBuilder correctedText = new StringBuilder();
         boolean hasCorrections = false;
 
         for (String word : words) {
+            // Kontrollera stavning för varje ord
             HashMap<String, String> wordResponse = libris.checkSpelling(word.trim());
             String correctedWord = wordResponse.get("after");
+            
+            // Om inget förslag finns, använd ursprungsordet
             if (correctedWord == null || correctedWord.equals(word) || correctedWord.isEmpty()) {
                 correctedWord = word; 
-            } else {
-                hasCorrections = true; // At least one word was corrected
+            }
+
+            if(correctedWord.length() == 1){
+                correctedWord = word; 
+            }
+            
+            if(containsNumbers(correctedWord)){
+                System.out.println("sant");
+                correctedWord = word; 
+            }
+
+            String[] wordDivided = correctedWord.split(" ");
+
+            if(wordDivided.length > 1){
+                correctedWord = word; 
+            }
+             
+            else {
+                hasCorrections = true; // Minst ett ord korrigerades
             }
             correctedText.append(correctedWord).append(" ");
         }
 
+        // Lägg till resultat i svaret
         response.put("originalText", userText);
         if (hasCorrections) {
             response.put("correctedText", correctedText.toString().trim());
@@ -149,6 +277,19 @@ public class BlueSky_Controller {
 
         return ResponseEntity.ok(response);
     
+    }
+
+    public boolean containsNumbers(String word){
+
+        for(int i = 0; i <= 9; i++){
+            String number = Integer.toString(i);
+
+            if(word.contains(number)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

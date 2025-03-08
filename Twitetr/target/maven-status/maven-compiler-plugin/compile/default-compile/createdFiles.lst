@@ -1,4 +1,5 @@
+com\example\Twitetr\Controller\BlueSky_Controller.class
 com\example\Twitetr\TwitetrApplication.class
-com\example\Twitetr\Entity\Thread.class
+com\example\Twitetr\Controller\Database_Controller.class
 com\example\Twitetr\Service\LibrisManager.class
-com\example\Twitetr\Controller\Controller_Thread.class
+com\example\Twitetr\Controller\ApiAuthentication.class
